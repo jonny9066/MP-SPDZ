@@ -91,6 +91,7 @@ void InputBase<T>::reset_all(Player& P)
 template<class T>
 void Input<T>::add_mine(const open_type& input, int n_bits)
 {
+    cout<<"Dbg: adding input: "<<input<<endl;
     (void) n_bits;
     int player = P.my_num();
     shares[player].push_back({});

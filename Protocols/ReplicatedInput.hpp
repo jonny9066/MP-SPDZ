@@ -30,6 +30,7 @@ void ReplicatedInput<T>::reset(int player)
 template<class T>
 inline void ReplicatedInput<T>::add_mine(const typename T::open_type& input, int n_bits)
 {
+    
     auto& shares = this->shares;
     shares.push_back({});
     T& my_share = shares.back();
@@ -49,6 +50,7 @@ template<class T>
 void ReplicatedInput<T>::send_mine()
 {
     P.send_relative(os);
+    
 }
 
 template<class T>

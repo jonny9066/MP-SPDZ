@@ -50,6 +50,7 @@ const vector<vector<typename T::open_type>>& ShamirInput<T>::get_vandermonde(
 template<class T>
 void ShamirInput<T>::add_mine(const typename T::open_type& input, int n_bits)
 {
+    
     (void) n_bits;
     auto& P = this->P;
     int n = P.num_players();

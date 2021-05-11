@@ -13,6 +13,14 @@ using namespace std;
 #include "Replicated.h"
 #include "Processor/Data_Files.h"
 
+#define TZDBGBV
+
+#ifdef TZDBGBV
+#define DMS_BV(str) do { std::cout << "TZBV: "<<str << std::endl; } while( false )
+#else
+#define DMS_BV(str) do { } while ( false )
+#endif
+
 template<class T> class SubProcessor;
 template<class T> class MAC_Check_Base;
 class Player;

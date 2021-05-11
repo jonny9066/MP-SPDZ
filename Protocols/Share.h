@@ -13,6 +13,14 @@ using namespace std;
 #include "Protocols/SemiShare.h"
 #include "ShareInterface.h"
 
+#define TZDBGSH
+
+#ifdef TZDBGSH
+#define DMS_SH(str) do { std::cout << "TZSH: "<< str << std::endl; } while( false )
+#else
+#define DMS_SH(str) do { } while ( false )
+#endif
+
 // Forward declaration as apparently this is needed for friends in templates
 template<class T> class Share;
 

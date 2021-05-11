@@ -13,6 +13,14 @@ using namespace std;
 #include "Tools/time-func.h"
 #include "Tools/PointerVector.h"
 
+#define TZDBGIN
+
+#ifdef TZDBGSH
+#define DMS_IN(str) do { std::cout <<"TZIN: "<< str << std::endl; } while( false )
+#else
+#define DMS_IN(str) do { } while ( false )
+#endif
+
 class ArithmeticProcessor;
 
 template<class T>
