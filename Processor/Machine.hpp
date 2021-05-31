@@ -138,6 +138,7 @@ void Machine<sint, sgf2n>::load_program(const string& threadname,
   progs.push_back(N.num_players());
   int i = progs.size() - 1;
   progs[i].parse(filename);
+
   M2.minimum_size(SGF2N, CGF2N, progs[i], threadname);
   Mp.minimum_size(SINT, CINT, progs[i], threadname);
   Mi.minimum_size(NONE, INT, progs[i], threadname);

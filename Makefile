@@ -170,6 +170,7 @@ secure.x: Utils/secure.o
 %-ecdsa-party.x: ECDSA/%-ecdsa-party.o ECDSA/P256Element.o $(VM)
 	$(CXX) -o $@ $(CFLAGS) $^ $(LDLIBS) $(ECLIB)
 
+
 replicated-bin-party.x: GC/square64.o
 replicated-ring-party.x: GC/square64.o
 replicated-field-party.x: GC/square64.o

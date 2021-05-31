@@ -698,6 +698,8 @@ class Tape:
                         print('Block requires %s rounds' % \
                             ', '.join('%d %s' % (y, x.__name__) \
                                      for x, y in list(merger.rounds.items())))
+                # TZ print graph to file
+                merger.print_graph_pretty("graph_printout.png")
                 # free memory
                 merger = None
                 if options.dead_code_elimination:

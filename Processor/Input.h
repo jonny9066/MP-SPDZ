@@ -13,12 +13,12 @@ using namespace std;
 #include "Tools/time-func.h"
 #include "Tools/PointerVector.h"
 
-#define TZDBGIN
-
-#ifdef TZDBGSH
-#define DMS_IN(str) do { std::cout <<"TZIN: "<< str << std::endl; } while( false )
+#ifdef TURBOSPEEDZ
+#ifdef TZDBGIN
+#define DMS_IN(str) do { std::cout <<"DBGIN: "<< str << std::endl; } while( false )
 #else
 #define DMS_IN(str) do { } while ( false )
+#endif
 #endif
 
 class ArithmeticProcessor;
@@ -35,6 +35,8 @@ protected:
     Timer timer;
 
 public:
+    // vector of octetStram(s) for every player
+    // used to broadcast values
     vector<octetStream> os;
     int values_input;
 
@@ -70,6 +72,7 @@ public:
     void raw_input(SubProcessor<T>& proc, const vector<int>& args, int size);
 };
 
+// T is the 'Share' type
 template<class T>
 class Input : public InputBase<T>
 {

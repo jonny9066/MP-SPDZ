@@ -13,12 +13,12 @@ using namespace std;
 #include "Replicated.h"
 #include "Processor/Data_Files.h"
 
-#define TZDBGBV
-
+#ifdef TURBOSPEEDZ
 #ifdef TZDBGBV
-#define DMS_BV(str) do { std::cout << "TZBV: "<<str << std::endl; } while( false )
+#define DMS_BV(str) do { std::cout << "DBGBV: "<<str << std::endl; } while( false )
 #else
 #define DMS_BV(str) do { } while ( false )
+#endif
 #endif
 
 template<class T> class SubProcessor;

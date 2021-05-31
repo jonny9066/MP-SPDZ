@@ -11,6 +11,10 @@ import heapq, itertools
 import operator
 import sys
 from functools import reduce
+# TZ for printing only
+import networkx as nx
+import matplotlib.pyplot as plt
+
 
 class BlockAllocator:
     """ Manages freed memory blocks. """
@@ -549,12 +553,32 @@ class Merger:
     def print_graph(self, filename):
         f = open(filename, 'w')
         print('digraph G {', file=f)
+        # G.n = maximal number of nodes
         for i in range(self.G.n):
+            # G[i] is a list of the neighbors of the ith node.
             for j in self.G[i]:
                 print('"%d: %s" -> "%d: %s";' % \
                     (i, self.instructions[i], j, self.instructions[j]), file=f)
         print('}', file=f)
         f.close()
+
+    def print_graph_pretty(self, filename):
+        # make a networkx graph and draw it to file
+        NG = nx.DiGraph()
+        label_dict = {}
+        # G.n = maximal number of nodes
+        for i in range(self.G.n):
+            if i not in NG:
+                NG.add_node(i,depth = 0 ,instr = self.instructions[i])
+                label_dict[i]=self.instructions[i]
+            depth = NG.nodes[i]['depth']
+            # G[i] is a list of the neighbors of the ith node.
+            for j in self.G[i]:
+                NG.add_node(j,depth = depth+1 ,instr = self.instructions[j])
+                label_dict[j]=self.instructions[j]
+                NG.add_edge(i,j)
+        nx.draw_networkx(NG,pos = nx.multipartite_layout(NG, subset_key = 'depth', align='horizontal') ,with_labels=True, labels=label_dict)
+        plt.savefig(filename)
 
     def print_depth(self, filename):
         f = open(filename, 'w')

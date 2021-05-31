@@ -985,6 +985,7 @@ inline void Instruction::execute(Processor<sint, sgf2n>& Proc) const
         Proc.Proc2.POpen(start, Proc.P, size);
         return;
       case MULS:
+      // Procp is for modp
         Proc.Procp.muls(start, size);
         return;
       case GMULS:

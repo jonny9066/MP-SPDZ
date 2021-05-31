@@ -14,6 +14,14 @@
 #include <sodium.h>
 #include <string>
 
+#ifdef TURBOSPEEDZ
+#ifdef TZDBGBV
+#define DMS_PRCS(str) do { std::cout << "DBGPRCS: "<<str << std::endl; } while( false )
+#else
+#define DMS_PRCS(str) do { } while ( false )
+#endif
+#endif
+
 template <class T>
 SubProcessor<T>::SubProcessor(ArithmeticProcessor& Proc, typename T::MAC_Check& MC,
     Preprocessing<T>& DataF, Player& P) :
@@ -403,10 +411,14 @@ void SubProcessor<T>::POpen(const vector<int>& reg,const Player& P,int size)
     }
 }
 
+// size is the size of the vector
 template<class T>
 void SubProcessor<T>::muls(const vector<int>& reg, int size)
 {
+
+
     assert(reg.size() % 3 == 0);
+    // number of argument tuples (factor, factor, result)
     int n = reg.size() / 3;
 
     SubProcessor<T>& proc = *this;

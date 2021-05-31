@@ -14,12 +14,12 @@
 
 using namespace std;
 
+// not actual spdz main
 template<class T, class U>
 int spdz_main(int argc, const char** argv, ez::ezOptionParser& opt, bool live_prep_default = true)
 {
     OnlineOptions& online_opts = OnlineOptions::singleton;
     online_opts = {opt, argc, argv, 1000, live_prep_default, T::clear::invertible};
-
     DishonestMajorityMachine machine(argc, argv, opt, online_opts, typename U::clear());
     return machine.run<T, U>();
 }
@@ -231,15 +231,16 @@ int OnlineMachine::run()
     try
 #endif
     {
-        Machine<T, U>(online_opts.playerno, playerNames, online_opts.progname,
-                online_opts.memtype, lg2,
-                online_opts.direct, opening_sum,
-                receive_threads, max_broadcast,
-                use_encryption, online_opts.live_prep,
-                online_opts).run();
 
-        if (server)
-          delete server;
+      Machine<T, U>(online_opts.playerno, playerNames, online_opts.progname,
+              online_opts.memtype, lg2,
+              online_opts.direct, opening_sum,
+              receive_threads, max_broadcast,
+              use_encryption, online_opts.live_prep,
+              online_opts).run();
+
+      if (server)
+        delete server;
 
 #ifdef VERBOSE
         cerr << "Command line:";

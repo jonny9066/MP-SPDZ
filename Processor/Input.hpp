@@ -6,6 +6,8 @@
 #ifndef PROCESSOR_INPUT_HPP_
 #define PROCESSOR_INPUT_HPP_
 
+#include <typeinfo>
+
 #include "Input.h"
 #include "Processor.h"
 
@@ -91,14 +93,19 @@ void InputBase<T>::reset_all(Player& P)
 template<class T>
 void Input<T>::add_mine(const open_type& input, int n_bits)
 {
-    cout<<"Dbg: adding input: "<<input<<endl;
     (void) n_bits;
     int player = P.my_num();
+    // insert an empty share
     shares[player].push_back({});
+    // set 'share' to be that empty share
     T& share = shares[player].back();
+    // gets random value and its auth-secret share
     prep.get_input(share, rr, player);
+    //mask input
     t = input - rr;
+    // broadcast t
     t.pack(this->os[player]);
+    // compute share of own input
     share += T::constant(t, player, MC.get_alphai());
     this->values_input++;
 }
@@ -108,6 +115,7 @@ void Input<T>::add_other(int player)
 {
     open_type t;
     shares.at(player).push_back({});
+    // gets share of other player's input
     prep.get_input(shares[player].back(), t, player);
 }
 
@@ -190,6 +198,7 @@ T Input<T>::finalize_mine()
     return shares[P.my_num()].next();
 }
 
+// compute own share of other's input
 template<class T>
 void Input<T>::finalize_other(int player, T& target,
         octetStream& o, int n_bits)
