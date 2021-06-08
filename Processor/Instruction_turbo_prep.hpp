@@ -1,44 +1,7 @@
-#ifndef PROCESSOR_INSTRUCTION_HPP_
-#define PROCESSOR_INSTRUCTION_HPP_
 
-#include "Processor/Instruction.h"
-#include "Processor/Machine.h"
-#include "Processor/Processor.h"
-#include "Processor/IntInput.h"
-#include "Processor/FixInput.h"
-#include "Processor/FloatInput.h"
-#include "Processor/instructions.h"
-#include "Tools/Exceptions.h"
-#include "Tools/time-func.h"
-#include "Tools/parse.h"
-#include "GC/Instruction.h"
-#include "GC/instructions.h"
 
-//#include "Processor/Processor.hpp"
-#include "Processor/Binary_File_IO.hpp"
-#include "Processor/PrivateOutput.hpp"
-//#include "Processor/Input.hpp"
-//#include "Processor/Beaver.hpp"
-//#include "Protocols/Shamir.hpp"
-//#include "Protocols/ShamirInput.hpp"
-//#include "Protocols/Replicated.hpp"
-//#include "Protocols/MaliciousRepMC.hpp"
-//#include "Protocols/ShamirMC.hpp"
-#include "Math/bigint.hpp"
-
-#include <stdlib.h>
-#include <algorithm>
-#include <sstream>
-#include <map>
-#include <iomanip>
-
-#include "Tools/callgrind.h"
-
-#ifdef TURBOPREP
-// @TZ use code for turbospeedz prep 
-#include "Instruction_turbo_prep.hpp"
-
-#else // @TZ use code below
+// implementation of instruction.hpp for turbospeedz
+// function dependent protocol
 
 inline
 void BaseInstruction::parse(istream& s, int inst_pos)
@@ -58,7 +21,7 @@ void BaseInstruction::parse(istream& s, int inst_pos)
 }
 
 
-
+// @TZ only implements few selected instructions
 inline
 void BaseInstruction::parse_operands(istream& s, int pos, int file_pos)
 {
@@ -66,422 +29,40 @@ void BaseInstruction::parse_operands(istream& s, int pos, int file_pos)
   switch (opcode)
   {
       // instructions with 3 register operands
-      case ADDC:
-      case ADDCB:
       case ADDS:
-      case ADDM:
-      case SUBC:
-      case SUBS:
-      case SUBML:
-      case SUBMR:
-      case MULC:
-      case MULM:
-      case DIVC:
-      case MODC:
-      case TRIPLE:
-      case ANDC:
-      case XORC:
-      case XORCB:
-      case ORC:
-      case SHLC:
-      case SHRC:
-      case GADDC:
-      case GADDS:
-      case GADDM:
-      case GSUBC:
-      case GSUBS:
-      case GSUBML:
-      case GSUBMR:
-      case GMULC:
-      case GMULM:
-      case GDIVC:
-      case GTRIPLE:
-      case GBITTRIPLE:
-      case GBITGF2NTRIPLE:
-      case GANDC:
-      case GXORC:
-      case GORC:
-      case GMULBITC:
-      case GMULBITM:
-      case LTC:
-      case GTC:
-      case EQC:
-      case ADDINT:
-      case SUBINT:
-      case MULINT:
-      case DIVINT:
-      case CONDPRINTPLAIN:
-      case INPUTMASKREG:
         r[0]=get_int(s);
         r[1]=get_int(s);
         r[2]=get_int(s);
         break;
-      // instructions with 2 register operands
-      case LDMCI:
-      case LDMSI:
-      case STMCI:
-      case STMSI:
-      case LDMSBI:
-      case STMSBI:
-      case MOVC:
-      case MOVS:
-      case MOVSB:
-      case MOVINT:
-      case LDMINTI:
-      case STMINTI:
-      case LEGENDREC:
-      case SQUARE:
-      case INV:
-      case GINV:
-      case CONVINT:
-      case GLDMCI:
-      case GLDMSI:
-      case GSTMCI:
-      case GSTMSI:
-      case GMOVC:
-      case GMOVS:
-      case GSQUARE:
-      case GNOTC:
-      case GCONVINT:
-      case GCONVGF2N:
-      case LTZC:
-      case EQZC:
-      case RAND:
-      case DABIT:
-      case SHUFFLE:
-        r[0]=get_int(s);
-        r[1]=get_int(s);
-        break;
-      // instructions with 1 register operand
-      case BIT:
-      case BITB:
-      case RANDOMFULLS:
-      case PRINTREGPLAIN:
-      case PRINTREGPLAINB:
-      case LDTN:
-      case LDARG:
-      case STARG:
-      case JMPI:
-      case GBIT:
-      case GPRINTREGPLAIN:
-      case JOIN_TAPE:
-      case PUSHINT:
-      case POPINT:
-      case PUBINPUT:
-      case RAWOUTPUT:
-      case GRAWOUTPUT:
-      case PRINTINT:
-      case NPLAYERS:
-      case THRESHOLD:
-      case PLAYERID:
-        r[0]=get_int(s);
-        break;
-      // instructions with 3 registers + 1 integer operand
-        r[0]=get_int(s);
-        r[1]=get_int(s);
-        r[2]=get_int(s);
-        n = get_int(s);
-        break;
-      // instructions with 2 registers + 1 integer operand
-      case ADDCI:
-      case ADDCBI:
-      case ADDSI:
-      case SUBCI:
-      case SUBSI:
-      case SUBCFI:
-      case SUBSFI:
-      case MULCI:
-      case MULCBI:
-      case MULSI:
-      case DIVCI:
-      case MODCI:
-      case ANDCI:
-      case XORCI:
-      case XORCBI:
-      case ORCI:
-      case SHLCI:
-      case SHRCI:
-      case SHRSI:
-      case SHLCBI:
-      case SHRCBI:
-      case NOTC:
-      case CONVMODP:
-      case GADDCI:
-      case GADDSI:
-      case GSUBCI:
-      case GSUBSI:
-      case GSUBCFI:
-      case GSUBSFI:
-      case GMULCI:
-      case GMULSI:
-      case GDIVCI:
-      case GANDCI:
-      case GXORCI:
-      case GORCI:
-      case GSHLCI:
-      case GSHRCI:
-      case USE:
-      case USE_INP:
-      case USE_EDABIT:
-      case STARTPRIVATEOUTPUT:
-      case GSTARTPRIVATEOUTPUT:
-      case STOPPRIVATEOUTPUT:
-      case GSTOPPRIVATEOUTPUT:
-      case DIGESTC:
-        r[0]=get_int(s);
-        r[1]=get_int(s);
-        n = get_int(s);
-        break;
-      // instructions with 1 register + 1 integer operand
-      case LDI:
-      case LDSI:
-      case LDMC:
-      case LDMS:
-      case STMC:
-      case STMS:
-      case LDMSB:
-      case STMSB:
-      case LDMCB:
-      case STMCB:
-      case LDMINT:
-      case STMINT:
-      case JMPNZ:
-      case JMPEQZ:
-      case GLDI:
-      case GLDSI:
-      case GLDMC:
-      case GLDMS:
-      case GSTMC:
-      case GSTMS:
-      case PRINTREG:
-      case PRINTREGB:
-      case GPRINTREG:
-      case LDINT:
-      case INPUTMASK:
-      case GINPUTMASK:
-      case ACCEPTCLIENTCONNECTION:
-      case INV2M:
-      case CONDPRINTSTR:
-      case CONDPRINTSTRB:
-      case RANDOMS:
-        r[0]=get_int(s);
-        n = get_int(s);
-        break;
-      // instructions with 1 integer operand
-      case PRINTSTR:
-      case PRINTCHR:
-      case JMP:
-      case START:
-      case STOP:
-      case LISTEN:
-      case PRINTFLOATPREC:
-        n = get_int(s);
-        break;
-      // instructions with no operand
-      case TIME:
-      case CRASH:
-      case STARTGRIND:
-      case STOPGRIND:
-        break;
-      // instructions with 5 register operands
-      case PRINTFLOATPLAIN:
-      case PRINTFLOATPLAINB:
-        get_vector(5, start, s);
-        break;
-      case INCINT:
-        r[0]=get_int(s);
-        r[1]=get_int(s);
-        n = get_int(s);
-        get_vector(2, start, s);
-        break;
-      // open instructions + read/write instructions with variable length args
-      case WRITEFILESHARE:
-      case OPEN:
-      case GOPEN:
+        
+       // open instructions + read/write instructions with variable length args
       case MULS:
-      case GMULS:
-      case MULRS:
-      case GMULRS:
-      case DOTPRODS:
-      case GDOTPRODS:
-      case INPUT:
-      case GINPUT:
-      case INPUTFIX:
-      case INPUTFLOAT:
       case INPUTMIXED:
-      case INPUTMIXEDREG:
-      case RAWINPUT:
-      case GRAWINPUT:
-      case TRUNC_PR:
-      case RUN_TAPE:
+      case OPEN:
         num_var_args = get_int(s);
         get_vector(num_var_args, start, s);
         break;
-      case MATMULS:
-        get_ints(r, s, 3);
-        get_vector(3, start, s);
-        break;
-      case MATMULSM:
-        get_ints(r, s, 3);
-        get_vector(9, start, s);
-        break;
-      case CONV2DS:
-        get_ints(r, s, 3);
-        get_vector(11, start, s);
+
+      // instructions with 1 register operand
+      case PRINTSTR:
+      case PRINTCHR:
+      case PRINTREGPLAIN:
+        r[0]=get_int(s);
         break;
 
-      // read from file, input is opcode num_args, 
-      //   start_file_posn (read), end_file_posn(write) var1, var2, ...
-      case READFILESHARE:
-        num_var_args = get_int(s) - 2;
-        r[0] = get_int(s);
-        r[1] = get_int(s);
-        get_vector(num_var_args, start, s);
+      // instructions with 2 registers + 1 integer operand
+      // TODO see if anything is needed to do
+      case USE:
+      case USE_INP:
+        r[0]=get_int(s);
+        r[1]=get_int(s);
+        n = get_int(s);
         break;
 
-      // read from external client, input is : opcode num_args, client_id, var1, var2 ...
-      case READSOCKETC:
-      case READSOCKETS:
-      case READSOCKETINT:
-        num_var_args = get_int(s) - 1;
-        r[0] = get_int(s);
-        get_vector(num_var_args, start, s);
-        break;
-
-      // write to external client, input is : opcode num_args, client_id, message_type, var1, var2 ...
-      case WRITESOCKETC:
-      case WRITESOCKETS:
-      case WRITESOCKETSHARE:
-      case WRITESOCKETINT:
-        num_var_args = get_int(s) - 2;
-        r[0] = get_int(s);
-        r[1] = get_int(s);
-        get_vector(num_var_args, start, s);
-        break;
-      case CONNECTIPV4:
-        throw runtime_error("parties as clients not supported any more");
-      case READCLIENTPUBLICKEY:
-      case INITSECURESOCKET:
-      case RESPSECURESOCKET:
-        throw runtime_error("VM-controlled encryption not supported any more");
-      // raw input
-      case STARTINPUT:
-      case GSTARTINPUT:
-      case STOPINPUT:
-      case GSTOPINPUT:
-        throw runtime_error("two-stage input not supported any more");
-      case PRINTMEM:
-      case GPRINTMEM:
-        throw runtime_error("memory printing not supported any more");
-      case PRINTCHRINT:
-      case PRINTSTRINT:
-        throw runtime_error("run-time printing not supported any more");
-      case PROTECTMEMS:
-      case PROTECTMEMC:
-      case GPROTECTMEMS:
-      case GPROTECTMEMC:
-      case PROTECTMEMINT:
-        throw runtime_error("memory protection not supported any more");
-      case GBITDEC:
-      case GBITCOM:
-        num_var_args = get_int(s) - 2;
-        r[0] = get_int(s);
-        n = get_int(s);
-        get_vector(num_var_args, start, s);
-        break;
-      case BITDECINT:
-      case EDABIT:
-      case SEDABIT:
-          num_var_args = get_int(s) - 1;
-          r[0] = get_int(s);
-          get_vector(num_var_args, start, s);
-          break;
-      case PREP:
-      case GPREP:
-        // subtract extra argument
-        num_var_args = get_int(s) - 1;
-        s.read((char*)r, sizeof(r));
-        start.resize(num_var_args);
-        for (int i = 0; i < num_var_args; i++)
-        { start[i] = get_int(s); }
-        break;
-      case USE_PREP:
-      case GUSE_PREP:
-        s.read((char*)r, sizeof(r));
-        n = get_int(s);
-        break;
-      case REQBL:
-        n = get_int(s);
-        BaseMachine::s().reqbl(n);
-        break;
-      case GREQBL:
-        n = get_int(s);
-        if (n > 0 && gf2n::degree() < int(n))
-          {
-            stringstream ss;
-            ss << "Tape requires prime of bit length " << n << endl;
-            throw Processor_Error(ss.str());
-          }
-        break;
-      case XORM:
-      case ANDM:
-        n = get_int(s);
-        get_ints(r, s, 3);
-        break;
-      case LDBITS:
-        get_ints(r, s, 2);
-        n = get_int(s);
-        break;
-      case BITDECS:
-      case BITCOMS:
-      case BITDECC:
-      case CONVCINTVEC:
-        num_var_args = get_int(s) - 1;
-        get_ints(r, s, 1);
-        get_vector(num_var_args, start, s);
-        break;
-      case CONVCINT:
-      case CONVCBIT:
-        get_ints(r, s, 2);
-        break;
-      case CONVSINT:
-      case CONVCBITVEC:
-      case CONVCBIT2S:
-      case NOTS:
-        n = get_int(s);
-        get_ints(r, s, 2);
-        break;
-      case LDMSDI:
-      case STMSDI:
-      case LDMSD:
-      case STMSD:
-      case STMSDCI:
-      case XORS:
-      case ANDRS:
-      case ANDS:
-      case INPUTB:
-      case INPUTBVEC:
-      case REVEAL:
-        get_vector(get_int(s), start, s);
-        break;
-      case PRINTREGSIGNED:
-        n = get_int(s);
-        get_ints(r, s, 1);
-        break;
-      case TRANS:
-        num_var_args = get_int(s) - 1;
-        n = get_int(s);
-        get_vector(num_var_args, start, s);
-        break;
-      case SPLIT:
-        num_var_args = get_int(s) - 2;
-        n = get_int(s);
-        get_ints(r, s, 1);
-        get_vector(num_var_args, start, s);
-        break;
+      // throw error for unimplemented instructions
       default:
         ostringstream os;
-        os << "Invalid instruction " << showbase << hex << opcode << " at " << dec
+        os << "Invalid (not implemented) instruction " << showbase << hex << opcode << " at " << dec
             << pos << "/" << hex << file_pos << dec << endl;
         throw Invalid_Instruction(os.str());
   }
@@ -1287,6 +868,3 @@ void Program::execute(Processor<sint, sgf2n>& Proc) const
         }
     }
 }
-
-#endif // TURBOPREP
-#endif // PROCESSOR_INSTRUCTION_HPP_

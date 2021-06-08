@@ -569,13 +569,21 @@ class Merger:
         # G.n = maximal number of nodes
         for i in range(self.G.n):
             if i not in NG:
-                NG.add_node(i,depth = 0 ,instr = self.instructions[i])
-                label_dict[i]=self.instructions[i]
+                NG.add_node(i,depth = 0)
+                try:
+                    label_dict[i]=self.instructions[i]
+                except:
+                    pass
             depth = NG.nodes[i]['depth']
             # G[i] is a list of the neighbors of the ith node.
             for j in self.G[i]:
-                NG.add_node(j,depth = depth+1 ,instr = self.instructions[j])
-                label_dict[j]=self.instructions[j]
+                NG.add_node(j,depth = depth+1)
+                try:
+                    label_dict[j]=self.instructions[j]
+                except:
+                    pass
+                    # print("out of range j=%d, istrutions = %s "%(j,self.instructions))
+                    # exit()
                 NG.add_edge(i,j)
         nx.draw_networkx(NG,pos = nx.multipartite_layout(NG, subset_key = 'depth', align='horizontal') ,with_labels=True, labels=label_dict)
         plt.savefig(filename)

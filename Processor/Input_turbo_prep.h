@@ -1,21 +1,3 @@
-/*
- * Input.h
- *
- */
-
-#ifndef PROCESSOR_INPUT_H_
-#define PROCESSOR_INPUT_H_
-
-#include <vector>
-using namespace std;
-
-#include "Tools/Buffer.h"
-#include "Tools/time-func.h"
-#include "Tools/PointerVector.h"
-
-#ifdef TURBOPREP
-#include "Input_turbo_prep.h"
-#else
 
 class ArithmeticProcessor;
 
@@ -63,7 +45,7 @@ public:
 
     virtual T finalize_mine() = 0;
     virtual void finalize_other(int player, T& target, octetStream& o, int n_bits = -1) = 0;
-    virtual T finalize(int player, int n_bits = -1);
+    // virtual T finalize(int player, int n_bits = -1);
 
     void raw_input(SubProcessor<T>& proc, const vector<int>& args, int size);
 };
@@ -99,5 +81,3 @@ public:
     T finalize_mine();
     void finalize_other(int player, T& target, octetStream& o, int n_bits = -1);
 };
-#endif // turbospeedz else
-#endif /* PROCESSOR_INPUT_H_ */

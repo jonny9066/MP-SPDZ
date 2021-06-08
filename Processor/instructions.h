@@ -8,6 +8,15 @@
 
 #include "Instruction.h"
 
+
+//@TZ contains some definitions of functions for ARITHMETIC_INSTRUCTIONS
+//  REGINT_INSTRUCTIONS CLEAR_GF2N_INSTRUCTIONS, later used
+// in switch case statements in files instruction.cpp and instruction.hpp
+// format is X(NAME,PRE,CODE) or X(NAME,CODE)
+
+#ifdef TURBOPREP
+#include "instructions_turbo_prep.h"
+#else
 #define ARITHMETIC_INSTRUCTIONS \
     X(LDI, auto dest = &Procp.get_C()[r[0]]; typename sint::clear tmp = int(n), \
             *dest++ = tmp) \
@@ -280,4 +289,6 @@
     X(GRAWOUTPUT, auto source = &C2[r[0]], \
             (*source++).output(Proc.public_output, false)) \
 
+
+#endif //TURBOPREP
 #endif /* PROCESSOR_INSTRUCTIONS_H_ */

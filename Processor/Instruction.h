@@ -2,6 +2,8 @@
 #define _Instruction
 
 /* Class to read and decode an instruction
+@TZ contains enums for instructions, definitions of classes 
+BaseInstruction and Instruction
  */
 
 #include <iostream>

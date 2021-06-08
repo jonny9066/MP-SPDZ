@@ -699,7 +699,8 @@ class Tape:
                             ', '.join('%d %s' % (y, x.__name__) \
                                      for x, y in list(merger.rounds.items())))
                 # TZ print graph to file
-                merger.print_graph_pretty("graph_printout.png")
+                # merger.print_graph("graph_printout.txt")
+                # merger.print_graph_pretty("graph_printout.png")
                 # free memory
                 merger = None
                 if options.dead_code_elimination:

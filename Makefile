@@ -23,6 +23,9 @@ YAO = $(patsubst %.cpp,%.o,$(wildcard Yao/*.cpp)) $(OT) BMR/Key.o
 BMR = $(patsubst %.cpp,%.o,$(wildcard BMR/*.cpp BMR/network/*.cpp))
 VM = $(PROCESSOR) $(COMMON) GC/square64.o GC/Instruction.o OT/OTTripleSetup.o OT/BaseOT.o $(LIBSIMPLEOT)
 
+#@TZ
+TURBOPREP = -DTURBOPREP
+TURBOSPEEDZ = -DTURBOSPEEDZ
 
 LIB = libSPDZ.a
 LIBRELEASE = librelease.a
@@ -58,6 +61,12 @@ include $(wildcard *.d static/*.d)
 	$(CXX) -o $@ $< $(CFLAGS) -MMD -MP -c
 
 online: Fake-Offline.x Server.x Player-Online.x Check-Offline.x emulate.x
+
+#@TZ
+#turbo_online: CFLAGS += $(TURBOSPEEDZ)
+#turbo_prep_online: CFLAGS += $(TURBOPREP)
+turbo_online: Fake-Offline.x Server.x TZ-Player-Online.x Check-Offline.x emulate.x
+turbo_prep: Fake-Offline.x Server.x TZPrep-Player-Online.x Check-Offline.x emulate.x
 
 offline: $(OT_EXE) Check-Offline.x mascot-offline.x cowgear-offline.x mal-shamir-offline.x
 
@@ -197,6 +206,10 @@ static/lowgear-party.x: $(FHEOFFLINE) Protocols/CowGearOptions.o Protocols/LowGe
 static/highgear-party.x: $(FHEOFFLINE) Protocols/CowGearOptions.o Protocols/HighGearKeyGen.o
 mascot-party.x: Machines/SPDZ.o $(OT)
 static/mascot-party.x: Machines/SPDZ.o
+#@TZ
+TZ-Player-Online.x: Machines/SPDZ.o $(OT)
+TZPrep-Player-Online.x: Machines/SPDZ.o $(OT)
+
 Player-Online.x: Machines/SPDZ.o $(OT)
 mama-party.x: $(OT)
 ps-rep-ring-party.x: Protocols/MalRepRingOptions.o

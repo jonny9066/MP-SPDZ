@@ -1,26 +1,4 @@
-/*
- * Input.cpp
- *
- */
-
-#ifndef PROCESSOR_INPUT_HPP_
-#define PROCESSOR_INPUT_HPP_
-
-#include <typeinfo>
-
-#include "Input.h"
-#include "Processor.h"
-
-#include "IntInput.h"
-#include "FixInput.h"
-#include "FloatInput.h"
-
-#include "IntInput.hpp"
-
-#ifdef TURBOPREP
-#include "Input_turbo_prep.hpp"
-
-#else
+// included in Input.hpp
 
 template<class T>
 InputBase<T>::InputBase(ArithmeticProcessor* proc) :
@@ -104,8 +82,10 @@ void Input<T>::add_mine(const open_type& input, int n_bits)
     shares[player].push_back({});
     // set 'share' to be that empty share
     T& share = shares[player].back();
-    // gets random value and its auth-secret share
+    // get random value and its auth-secret share
     prep.get_input(share, rr, player);
+    // store random open val
+    rand.push_back(rr); //@TZ
     //mask input
     t = input - rr;
     // broadcast t
@@ -200,6 +180,7 @@ void InputBase<T>::raw_input(SubProcessor<T>& proc, const vector<int>& args,
 template<class T>
 T Input<T>::finalize_mine()
 {
+    // returns last share and advances pointer
     return shares[P.my_num()].next();
 }
 
@@ -209,8 +190,10 @@ void Input<T>::finalize_other(int player, T& target,
         octetStream& o, int n_bits)
 {
     (void) n_bits;
+    // gets share [[r_i]] of other player
     target = shares[player].next();
     t.unpack(o);
+    // add epsilon to it (?)
     target += T::constant(t, P.my_num(), MC.get_alphai());
 }
 
@@ -259,7 +242,17 @@ void InputBase<T>::finalize(SubProcessor<T>& Proc, int player, const int* dest,
     auto& input = Proc.input;
     for (int k = 0; k < size; k++)
         for (int j = 0; j < U::N_DEST; j++)
-            Proc.get_S_ref(dest[j] + k) = input.finalize(player);
+            // put shares of the input in their place
+            //@TZ
+            if (player == P->my_num())
+                Proc.get_S_ref(dest[j] + k) =  finalize_mine();
+                Proc.get_C_ref(dest[j] + k) =  rand.next();
+            else
+            {
+                T res;
+                finalize_other(player, res, os[player], n_bits);
+                Proc.get_S_ref(dest[j] + k) =  res;
+            }
 }
 
 template<class T>
@@ -291,6 +284,7 @@ void InputBase<T>::input(SubProcessor<T>& Proc,
     if (n_from_me > 0)
         cout << "Thank you" << endl;
 
+    // exchange shares of x_i-r_i
     input.exchange();
 
     for (size_t i = 0; i < args.size(); i += n_arg_tuple)
@@ -314,7 +308,7 @@ int InputBase<T>::get_player(SubProcessor<T>& Proc, int arg, bool player_from_re
    else
        return arg;
 }
-
+// player_from_reg=false for INPUTMIXED
 template<class T>
 void InputBase<T>::input_mixed(SubProcessor<T>& Proc, const vector<int>& args,
     int size, bool player_from_reg)
@@ -331,6 +325,7 @@ void InputBase<T>::input_mixed(SubProcessor<T>& Proc, const vector<int>& args,
         switch (type)
         {
 #undef X
+// prepare activated add_mine and add_other for me and other players resp.
 #define X(U) \
         case U::TYPE: \
             n_arg_tuple = U::N_DEST + U::N_PARAM + 2; \
@@ -347,7 +342,8 @@ void InputBase<T>::input_mixed(SubProcessor<T>& Proc, const vector<int>& args,
         i += n_arg_tuple;
         last_type = type;
     }
-
+    
+    // exchange shares of x_i-r_i
     input.exchange();
 
     for (size_t i = 0; i < args.size();)
@@ -371,5 +367,3 @@ void InputBase<T>::input_mixed(SubProcessor<T>& Proc, const vector<int>& args,
         i += n_arg_tuple;
     }
 }
-#endif //TURBOPREP else
-#endif
