@@ -1,20 +1,3 @@
-/*
- * Beaver.cpp
- *
- */
-
-#ifndef PROTOCOLS_BEAVER_HPP_
-#define PROTOCOLS_BEAVER_HPP_
-
-#include "Beaver.h"
-
-#include "Replicated.hpp"
-
-#include <array>
-
-#ifdef TURBOPREP
-#include "TurboPrepMul.hpp"
-#else
 
 template<class T>
 Player& Beaver<T>::branch()
@@ -46,14 +29,16 @@ typename T::clear Beaver<T>::prepare_mul(const T& x, const T& y, int n)
     triples.push_back({{}});
     auto& triple = triples.back();
     triple = prep->get_triple(n);
-    shares.push_back(x - triple[0]);
-    shares.push_back(y - triple[1]);
+    //@TZ triple[0] - x instead of x - triple[0]
+    shares.push_back(triple[0] - x);
+    shares.push_back(triple[1] - y);
     return 0;
 }
 
 template<class T>
 void Beaver<T>::exchange()
 {
+    // throw runtime_error("Shouldn't reach here in Turbo prep")
     MC->POpen(opened, shares, P);
     it = opened.begin();
     triple = triples.begin();
@@ -88,5 +73,17 @@ T Beaver<T>::finalize_mul(int n)
     triple++;
     return tmp;
 }
-#endif // turboprep else
-#endif
+
+template<class T>
+pair<array<typename T::open_type,2>,T> Beaver<T>::finalize_mul_prep()
+{
+    // typename T::open_type open_perm[2]; // open permutation elements
+    array<typename T::open_type,2> open_perm; // open permutation elements
+    T& c = (*triple)[2];
+    T r = prep->get_random();
+    for (int k = 0; k < 2; k++)
+        open_perm[k] = *it++;
+    pair<array<typename T::open_type,2>,T> res = {open_perm, c+r};
+    triple++;
+    return res;
+}

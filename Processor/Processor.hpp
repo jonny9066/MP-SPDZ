@@ -14,7 +14,7 @@
 #include <sodium.h>
 #include <string>
 
-#ifdef defined(TURBOPREP) || defined(TURBOSPEEDZ) 
+#if defined(TURBOPREP) || defined(TURBOSPEEDZ) 
 #include "Processor_turbo.hpp"
 #else
 

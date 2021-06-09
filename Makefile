@@ -63,8 +63,10 @@ include $(wildcard *.d static/*.d)
 online: Fake-Offline.x Server.x Player-Online.x Check-Offline.x emulate.x
 
 #@TZ
-#turbo_online: CFLAGS += $(TURBOSPEEDZ)
-#turbo_prep_online: CFLAGS += $(TURBOPREP)
+turbo_online: CFLAGS += -DTURBOSPEEDZ -DTZDEBUG
+turbo_online: CFLAGS:= $(filter-out -Werror,$(CFLAGS)) #for unused vars
+turbo_prep: CFLAGS += -DTURBOPREP -DTZDEBUG
+turbo_prep: CFLAGS:= $(filter-out -Werror,$(CFLAGS))
 turbo_online: Fake-Offline.x Server.x TZ-Player-Online.x Check-Offline.x emulate.x
 turbo_prep: Fake-Offline.x Server.x TZPrep-Player-Online.x Check-Offline.x emulate.x
 

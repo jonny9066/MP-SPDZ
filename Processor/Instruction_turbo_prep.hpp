@@ -58,6 +58,15 @@ void BaseInstruction::parse_operands(istream& s, int pos, int file_pos)
         r[1]=get_int(s);
         n = get_int(s);
         break;
+      // instructions with 1 register + 1 integer operand
+      case LDMC:
+      case LDMINT:
+      case LDMS:
+      case GLDMC:
+      case GLDMS:
+        r[0]=get_int(s);
+        n = get_int(s);
+        break;
 
       // throw error for unimplemented instructions
       default:

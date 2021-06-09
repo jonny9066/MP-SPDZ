@@ -184,6 +184,13 @@ T Input<T>::finalize_mine()
     return shares[P.my_num()].next();
 }
 
+template<class T>
+typename T::open_type Input<T>::finalize_mine_rand()
+{
+    // returns last random open val and advances pointer
+    return rand.next();
+}
+
 // compute own share of other's input
 template<class T>
 void Input<T>::finalize_other(int player, T& target,
@@ -207,6 +214,18 @@ T InputBase<T>::finalize(int player, int n_bits)
         T res;
         finalize_other(player, res, os[player], n_bits);
         return res;
+    }
+}
+template<class T>
+tuple<T, typename T::open_type, bool> InputBase<T>::finalize_tzprep(int player, int n_bits)
+{
+    if (player == P->my_num())
+        return {finalize_mine(), finalize_mine_rand(), true};
+    else
+    {
+        T res;
+        finalize_other(player, res, os[player], n_bits);
+        return {res, NULL,false};
     }
 }
 
@@ -241,18 +260,19 @@ void InputBase<T>::finalize(SubProcessor<T>& Proc, int player, const int* dest,
 {
     auto& input = Proc.input;
     for (int k = 0; k < size; k++)
-        for (int j = 0; j < U::N_DEST; j++)
+        for (int j = 0; j < U::N_DEST; j++){
             // put shares of the input in their place
             //@TZ
-            if (player == P->my_num())
-                Proc.get_S_ref(dest[j] + k) =  finalize_mine();
-                Proc.get_C_ref(dest[j] + k) =  rand.next();
-            else
-            {
-                T res;
-                finalize_other(player, res, os[player], n_bits);
-                Proc.get_S_ref(dest[j] + k) =  res;
+            tuple<T, typename T::open_type, bool> so = input.finalize_tzprep(player);
+            if (get<2>(so) == true)
+            {   
+                Proc.get_S_ref(dest[j] + k) =  get<0>(so);
+                Proc.get_C_ref(dest[j] + k) =  get<1>(so);
             }
+            else
+                Proc.get_S_ref(dest[j] + k) =  get<0>(so);
+        }
+            
 }
 
 template<class T>
@@ -313,6 +333,7 @@ template<class T>
 void InputBase<T>::input_mixed(SubProcessor<T>& Proc, const vector<int>& args,
     int size, bool player_from_reg)
 {
+    DEBUG_IN("entered input_mixed");
     auto& input = Proc.input;
     input.reset_all(Proc.P);
     int last_type = -1;

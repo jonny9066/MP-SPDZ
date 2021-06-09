@@ -1,22 +1,10 @@
-/*
- * Beaver.h
- *
- */
-
-#ifndef PROTOCOLS_BEAVER_H_
-#define PROTOCOLS_BEAVER_H_
-
-#include <vector>
-#include <array>
-using namespace std;
-
-#include "Replicated.h"
-#include "Processor/Data_Files.h"
 
 
-#ifdef TURBOPREP
-#include "TurboPrepMul.h"
+#ifdef TZDEBUG
+#define DEBUG_PRPMUL(str) do { cout<<"PREP MUL: " << str << endl; } while( false )
 #else
+#define DEBUG_PRPMUL(str) do { } while ( false )
+#endif
 
 template<class T> class SubProcessor;
 template<class T> class MAC_Check_Base;
@@ -47,12 +35,10 @@ public:
     typename T::clear prepare_mul(const T& x, const T& y, int n = -1);
     void exchange();
     T finalize_mul(int n = -1);
+    pair<array<typename T::open_type,2>,T> finalize_mul_prep();
 
     void start_exchange();
     void stop_exchange();
 
     int get_n_relevant_players() { return 1 + T::threshold(P.num_players()); }
 };
-
-#endif // turboprep if
-#endif /* PROTOCOLS_BEAVER_H_ */

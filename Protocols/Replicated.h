@@ -90,6 +90,11 @@ public:
     virtual void stop_exchange() {}
 
     virtual void check() {}
+#ifdef TURBOPREP
+    pair<array<typename T::open_type,2>,T> finalize_mul_prep(){
+        throw runtime_error("finalize_mul_prep() not implemented");
+        }
+#endif
 };
 
 template <class T>

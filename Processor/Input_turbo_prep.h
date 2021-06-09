@@ -1,4 +1,12 @@
 
+
+#ifdef TZDEBUG
+#define DEBUG_IN(str) do { cout<<"INPUT: " << str << endl; } while( false )
+#else
+#define DEBUG_IN(str) do { } while ( false )
+#endif
+
+
 class ArithmeticProcessor;
 
 template<class T>
@@ -44,8 +52,12 @@ public:
     virtual void exchange();
 
     virtual T finalize_mine() = 0;
+    virtual typename T::open_type finalize_mine_rand(){
+        throw runtime_error("finalize_mine_rand not implemented");
+    }
     virtual void finalize_other(int player, T& target, octetStream& o, int n_bits = -1) = 0;
-    // virtual T finalize(int player, int n_bits = -1);
+    virtual T finalize(int player, int n_bits = -1);
+    virtual tuple<T, typename T::open_type, bool> finalize_tzprep(int player, int n_bits = -1);
 
     void raw_input(SubProcessor<T>& proc, const vector<int>& args, int size);
 };
@@ -63,6 +75,7 @@ class Input : public InputBase<T>
     Preprocessing<T>& prep;
     Player& P;
     vector< PointerVector<T> > shares;
+    PointerVector<open_type> rand; //@TZ stores my random vals
     open_type rr, t, xi;
 
 public:
@@ -79,5 +92,6 @@ public:
     void send_mine();
 
     T finalize_mine();
+    open_type finalize_mine_rand();
     void finalize_other(int player, T& target, octetStream& o, int n_bits = -1);
 };

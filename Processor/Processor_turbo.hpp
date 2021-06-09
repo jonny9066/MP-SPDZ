@@ -1,6 +1,12 @@
 
 // included in Processor.hpp
 
+#ifdef TZDEBUG
+#define DEBUG_PR(str) do { cout<<"PRCSR: " << str << endl; } while( false )
+#else
+#define DEBUG_PR(str) do { } while ( false )
+#endif
+
 template <class T>
 SubProcessor<T>::SubProcessor(ArithmeticProcessor& Proc, typename T::MAC_Check& MC,
     Preprocessing<T>& DataF, Player& P) :
@@ -394,7 +400,7 @@ template<class T>
 void SubProcessor<T>::muls(const vector<int>& reg, int size)
 {
 
-
+    DEBUG_PR("entered muls");
     assert(reg.size() % 3 == 0);
     // number of argument tuples (factor, factor, result)
     int n = reg.size() / 3;
@@ -404,15 +410,23 @@ void SubProcessor<T>::muls(const vector<int>& reg, int size)
     for (int i = 0; i < n; i++)
         for (int j = 0; j < size; j++)
         {
+            // x and y are shares on gate input wires
             auto& x = proc.S[reg[3 * i + 1] + j];
             auto& y = proc.S[reg[3 * i + 2] + j];
             protocol.prepare_mul(x, y);
         }
+    // @TZ open the permutation elements for input wires
     protocol.exchange();
     for (int i = 0; i < n; i++)
         for (int j = 0; j < size; j++)
         {
-            proc.S[reg[3 * i] + j] = protocol.finalize_mul();
+          // returns the opened permutation elements and the output wire share
+          pair<array<typename T::open_type,2>,T> res = protocol.finalize_mul_prep();
+          array<typename T::open_type,2> open_perm = res.first;
+          T out_share = res.second;
+          proc.C[reg[3 * i + 1] + j] = open_perm[0];
+          proc.C[reg[3 * i + 2] + j] = open_perm[1];
+          proc.S[reg[3 * i] + j] = out_share;
         }
 
     protocol.counter += n * size;

@@ -290,5 +290,5 @@
             (*source++).output(Proc.public_output, false)) \
 
 
-#endif //TURBOPREP
+#endif //TURBOPREP else
 #endif /* PROCESSOR_INSTRUCTIONS_H_ */
