@@ -1,7 +1,49 @@
 
 
+#ifndef PROCESSOR_INSTRUCTION_HPP_
+#define PROCESSOR_INSTRUCTION_HPP_
+
+#include "Processor/Instruction.h"
+#include "Processor/Machine.h"
+#include "Processor/Processor.h"
+#include "Processor/IntInput.h"
+#include "Processor/FixInput.h"
+#include "Processor/FloatInput.h"
+#include "Processor/instructions.h"
+#include "Tools/Exceptions.h"
+#include "Tools/time-func.h"
+#include "Tools/parse.h"
+#include "GC/Instruction.h"
+#include "GC/instructions.h"
+
+//#include "Processor/Processor.hpp"
+#include "Processor/Binary_File_IO.hpp"
+#include "Processor/PrivateOutput.hpp"
+//#include "Processor/Input.hpp"
+//#include "Processor/Beaver.hpp"
+//#include "Protocols/Shamir.hpp"
+//#include "Protocols/ShamirInput.hpp"
+//#include "Protocols/Replicated.hpp"
+//#include "Protocols/MaliciousRepMC.hpp"
+//#include "Protocols/ShamirMC.hpp"
+#include "Math/bigint.hpp"
+
+#include <stdlib.h>
+#include <algorithm>
+#include <sstream>
+#include <map>
+#include <iomanip>
+
+#include "Tools/callgrind.h"
+
+
 // implementation of instruction.hpp for turbospeedz
 // function dependent protocol
+#ifdef TZDEBUG
+#define DEBUG_INSTR(str) do { cout<<"INSTR: " << str << endl; } while( false )
+#else
+#define DEBUG_INSTR(str) do { } while ( false )
+#endif
 
 inline
 void BaseInstruction::parse(istream& s, int inst_pos)
@@ -26,6 +68,7 @@ inline
 void BaseInstruction::parse_operands(istream& s, int pos, int file_pos)
 {
   int num_var_args = 0;
+  // DEBUG_INSTR("parsing " << showbase << hex << opcode  << dec );
   switch (opcode)
   {
       // instructions with 3 register operands
@@ -36,16 +79,18 @@ void BaseInstruction::parse_operands(istream& s, int pos, int file_pos)
         break;
         
        // open instructions + read/write instructions with variable length args
+      case OPEN:
       case MULS:
       case INPUTMIXED:
-      case OPEN:
         num_var_args = get_int(s);
         get_vector(num_var_args, start, s);
         break;
-
-      // instructions with 1 register operand
+      // instructions with 1 integer operand
       case PRINTSTR:
       case PRINTCHR:
+        n = get_int(s);
+        break;
+      // instructions with 1 register operand
       case PRINTREGPLAIN:
         r[0]=get_int(s);
         break;
@@ -576,8 +621,8 @@ inline void Instruction::execute(Processor<sint, sgf2n>& Proc) const
       case SHRSI:
         sint::shrsi(Procp, *this);
         return;
-      case OPEN:
-        Proc.Procp.POpen(start, Proc.P, size);
+      case OPEN:// @TZ may open already opened values
+         Proc.Procp.POpen(start, Proc.P, size);
         return;
       case GOPEN:
         Proc.Proc2.POpen(start, Proc.P, size);
@@ -635,9 +680,7 @@ inline void Instruction::execute(Processor<sint, sgf2n>& Proc) const
            }
         break;
       case PRINTREGPLAIN:
-           {
-             Proc.out << Proc.read_Cp(r[0]) << flush;
-           }
+          //@TZ prep disabled printing
         break;
       case CONDPRINTPLAIN:
         if (not Proc.read_Cp(r[0]).is_zero())
@@ -817,6 +860,9 @@ inline void Instruction::execute(Processor<sint, sgf2n>& Proc) const
 #define X(NAME, PRE, CODE) case NAME:
         REGINT_INSTRUCTIONS
 #undef X
+#define X(NAME, PRE, CODE) case NAME:
+        REGINT_INSTRUCTIONS_DISABLED
+#undef X
         throw runtime_error("wrong case statement"); return;
     }
   if (size > 1)
@@ -854,7 +900,7 @@ void Program::execute(Processor<sint, sgf2n>& Proc) const
 #endif
 
       Proc.PC++;
-
+      // DEBUG_INSTR("executing " << showbase << hex << instruction.get_opcode()  << dec );
       switch(instruction.get_opcode())
         {
 #define X(NAME, PRE, CODE) \
@@ -869,6 +915,10 @@ void Program::execute(Processor<sint, sgf2n>& Proc) const
         REGINT_INSTRUCTIONS
         instruction.execute_regint(Proc, Proc.machine.Mi.MC); break;
 #undef X
+#define X(NAME, PRE, CODE) case NAME:
+        REGINT_INSTRUCTIONS_DISABLED
+        break;
+#undef X
 #define X(NAME, CODE) case NAME: CODE; break;
         COMBI_INSTRUCTIONS
 #undef X
@@ -876,4 +926,6 @@ void Program::execute(Processor<sint, sgf2n>& Proc) const
           instruction.execute(Proc);
         }
     }
+    DEBUG_INSTR("Execution complete");
 }
+#endif

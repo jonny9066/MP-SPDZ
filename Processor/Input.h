@@ -2,6 +2,9 @@
  * Input.h
  *
  */
+#ifdef TURBOPREP
+#include "Input_turbo_prep.h"
+#else
 
 #ifndef PROCESSOR_INPUT_H_
 #define PROCESSOR_INPUT_H_
@@ -13,10 +16,7 @@ using namespace std;
 #include "Tools/time-func.h"
 #include "Tools/PointerVector.h"
 
-#ifdef TURBOPREP
-#include <tuple>
-#include "Input_turbo_prep.h"
-#else
+
 
 class ArithmeticProcessor;
 

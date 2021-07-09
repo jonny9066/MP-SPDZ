@@ -20,6 +20,7 @@ class Beaver : public ProtocolBase<T>
     typename vector<array<T, 3>>::iterator triple;
     Preprocessing<T>* prep;
     typename T::MAC_Check* MC;
+    // typename T::open_type zz; // @TZ to avoid copying triples
 
 public:
     static const bool uses_triples = true;

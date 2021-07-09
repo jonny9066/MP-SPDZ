@@ -80,10 +80,11 @@ pair<array<typename T::open_type,2>,T> Beaver<T>::finalize_mul_prep()
     // typename T::open_type open_perm[2]; // open permutation elements
     array<typename T::open_type,2> open_perm; // open permutation elements
     T& c = (*triple)[2];
-    T r = prep->get_random();
     for (int k = 0; k < 2; k++)
         open_perm[k] = *it++;
-    pair<array<typename T::open_type,2>,T> res = {open_perm, c+r};
+    T zz = prep->get_random();
+    zz+= c;
+    pair<array<typename T::open_type,2>,T> res = {open_perm, zz};
     triple++;
     return res;
 }

@@ -1,3 +1,9 @@
+
+
+#if defined(TURBOPREP) || defined(TURBOSPEEDZ) 
+#include "Processor_turbo.hpp"
+#else
+
 #ifndef PROCESSOR_PROCESSOR_HPP_
 #define PROCESSOR_PROCESSOR_HPP_
 
@@ -14,9 +20,6 @@
 #include <sodium.h>
 #include <string>
 
-#if defined(TURBOPREP) || defined(TURBOSPEEDZ) 
-#include "Processor_turbo.hpp"
-#else
 
 template <class T>
 SubProcessor<T>::SubProcessor(ArithmeticProcessor& Proc, typename T::MAC_Check& MC,

@@ -75,6 +75,7 @@ template<class T>
 class MascotPrep : public virtual MaliciousRingPrep<T>,
         public virtual MascotDabitOnlyPrep<T>
 {
+    MascotPrep(const MascotPrep&);// @TZ prevent copying
 public:
     MascotPrep(SubProcessor<T>* proc, DataPositions& usage) :
             BufferPrep<T>(usage), BitPrep<T>(proc, usage),

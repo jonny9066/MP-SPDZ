@@ -1,3 +1,10 @@
+
+#ifdef TURBOPREP
+// @TZ use code for turbospeedz prep 
+#include "Instruction_turbo_prep.hpp"
+
+#else // @TZ use code below
+
 #ifndef PROCESSOR_INSTRUCTION_HPP_
 #define PROCESSOR_INSTRUCTION_HPP_
 
@@ -34,11 +41,7 @@
 
 #include "Tools/callgrind.h"
 
-#ifdef TURBOPREP
-// @TZ use code for turbospeedz prep 
-#include "Instruction_turbo_prep.hpp"
 
-#else // @TZ use code below
 
 inline
 void BaseInstruction::parse(istream& s, int inst_pos)

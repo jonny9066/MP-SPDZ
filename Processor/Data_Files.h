@@ -168,6 +168,8 @@ public:
 template<class T>
 class Sub_Data_Files : public Preprocessing<T>
 {
+  Sub_Data_Files(const Sub_Data_Files&);//@TZ
+
   template<class U> friend class Sub_Data_Files;
 
   static int tuple_length(int dtype);

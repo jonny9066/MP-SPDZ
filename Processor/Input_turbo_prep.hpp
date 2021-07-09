@@ -1,5 +1,19 @@
 // included in Input.hpp
 
+#ifndef PROCESSOR_INPUT_HPP_
+#define PROCESSOR_INPUT_HPP_
+
+#include <typeinfo>
+
+#include "Input.h"
+#include "Processor.h"
+
+#include "IntInput.h"
+#include "FixInput.h"
+#include "FloatInput.h"
+
+#include "IntInput.hpp"
+
 template<class T>
 InputBase<T>::InputBase(ArithmeticProcessor* proc) :
         P(0), values_input(0)
@@ -55,6 +69,7 @@ void Input<T>::reset(int player)
 {
     InputBase<T>::reset(player);
     shares[player].clear();
+    rand.clear(); //@TZ
 }
 
 template<class T>
@@ -76,22 +91,21 @@ void InputBase<T>::reset_all(Player& P)
 template<class T>
 void Input<T>::add_mine(const open_type& input, int n_bits)
 {
+    (void) input;
     (void) n_bits;
     int player = P.my_num();
     // insert an empty share
     shares[player].push_back({});
+    rand.push_back({});
     // set 'share' to be that empty share
     T& share = shares[player].back();
+    open_type& ra = rand.back();
     // get random value and its auth-secret share
-    prep.get_input(share, rr, player);
-    // store random open val
-    rand.push_back(rr); //@TZ
-    //mask input
-    t = input - rr;
+    prep.get_input(share, ra, player);
+    //send mask 0, to not break anything
+    t = 0;
     // broadcast t
     t.pack(this->os[player]);
-    // compute share of own input
-    share += T::constant(t, player, MC.get_alphai());
     this->values_input++;
 }
 
@@ -100,7 +114,7 @@ void Input<T>::add_other(int player)
 {
     open_type t;
     shares.at(player).push_back({});
-    // gets share of other player's input
+    // gets share of random value and adds mask to it
     prep.get_input(shares[player].back(), t, player);
 }
 
@@ -267,7 +281,7 @@ void InputBase<T>::finalize(SubProcessor<T>& Proc, int player, const int* dest,
             if (get<2>(so) == true)
             {   
                 Proc.get_S_ref(dest[j] + k) =  get<0>(so);
-                Proc.get_C_ref(dest[j] + k) =  get<1>(so);
+                Proc.get_E_ref(dest[j] + k) =  get<1>(so);
             }
             else
                 Proc.get_S_ref(dest[j] + k) =  get<0>(so);
@@ -333,7 +347,7 @@ template<class T>
 void InputBase<T>::input_mixed(SubProcessor<T>& Proc, const vector<int>& args,
     int size, bool player_from_reg)
 {
-    DEBUG_IN("entered input_mixed");
+    DEBUG_IN("enter input_mixed");
     auto& input = Proc.input;
     input.reset_all(Proc.P);
     int last_type = -1;
@@ -346,7 +360,7 @@ void InputBase<T>::input_mixed(SubProcessor<T>& Proc, const vector<int>& args,
         switch (type)
         {
 #undef X
-// prepare activated add_mine and add_other for me and other players resp.
+// prepare activates add_mine and add_other for me and other players resp.
 #define X(U) \
         case U::TYPE: \
             n_arg_tuple = U::N_DEST + U::N_PARAM + 2; \
@@ -387,4 +401,6 @@ void InputBase<T>::input_mixed(SubProcessor<T>& Proc, const vector<int>& args,
         }
         i += n_arg_tuple;
     }
+    DEBUG_IN("exit input_mixed");
 }
+#endif 

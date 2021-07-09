@@ -1,4 +1,16 @@
 
+#ifndef PROCESSOR_INPUT_H_
+#define PROCESSOR_INPUT_H_
+
+#include <vector>
+#include <tuple>
+using namespace std;
+
+#include "Tools/Buffer.h"
+#include "Tools/time-func.h"
+#include "Tools/PointerVector.h"
+
+
 
 #ifdef TZDEBUG
 #define DEBUG_IN(str) do { cout<<"INPUT: " << str << endl; } while( false )
@@ -52,11 +64,13 @@ public:
     virtual void exchange();
 
     virtual T finalize_mine() = 0;
+    //@TZ does the same as finalize_mine
     virtual typename T::open_type finalize_mine_rand(){
         throw runtime_error("finalize_mine_rand not implemented");
     }
     virtual void finalize_other(int player, T& target, octetStream& o, int n_bits = -1) = 0;
     virtual T finalize(int player, int n_bits = -1);
+    //@TZ returns the random value and its share
     virtual tuple<T, typename T::open_type, bool> finalize_tzprep(int player, int n_bits = -1);
 
     void raw_input(SubProcessor<T>& proc, const vector<int>& args, int size);
@@ -95,3 +109,5 @@ public:
     open_type finalize_mine_rand();
     void finalize_other(int player, T& target, octetStream& o, int n_bits = -1);
 };
+
+#endif

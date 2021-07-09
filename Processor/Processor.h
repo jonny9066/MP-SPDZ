@@ -1,4 +1,9 @@
 
+
+#ifdef TURBOPREP
+#include "Processor_turbo.h"
+#else
+
 #ifndef _Processor
 #define _Processor
 
@@ -247,4 +252,4 @@ class Processor : public ArithmeticProcessor
 };
 
 #endif
-
+#endif//else TURBOPREP

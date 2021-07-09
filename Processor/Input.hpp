@@ -3,6 +3,10 @@
  *
  */
 
+#ifdef TURBOPREP
+#include "Input_turbo_prep.hpp"
+#else
+
 #ifndef PROCESSOR_INPUT_HPP_
 #define PROCESSOR_INPUT_HPP_
 
@@ -17,10 +21,6 @@
 
 #include "IntInput.hpp"
 
-#ifdef TURBOPREP
-#include "Input_turbo_prep.hpp"
-
-#else
 
 template<class T>
 InputBase<T>::InputBase(ArithmeticProcessor* proc) :
@@ -371,5 +371,5 @@ void InputBase<T>::input_mixed(SubProcessor<T>& Proc, const vector<int>& args,
         i += n_arg_tuple;
     }
 }
-#endif //TURBOPREP else
-#endif
+#endif 
+#endif//TURBOPREP else

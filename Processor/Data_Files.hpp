@@ -8,6 +8,14 @@
 
 #include "Protocols/MascotPrep.hpp"
 
+
+
+#ifdef TZDEBUG
+#define DEBUG_DTF(str) do { cout<<"DTAFLS: " << str << endl; } while( false )
+#else
+#define DEBUG_DTF(str) do { } while ( false )
+#endif
+
 template<class T>
 Preprocessing<T>* Preprocessing<T>::get_live_prep(SubProcessor<T>* proc,
     DataPositions& usage)
@@ -125,6 +133,7 @@ Data_Files<sint, sgf2n>::~Data_Files()
     cerr << "Sent for " << sint::type_string() << " preprocessing threads: " <<
         DataFp.data_sent() * 1e-6 << " MB" << endl;
 #endif
+  DEBUG_DTF("Deleting &DataFp");
   delete &DataFp;
 #ifdef VERBOSE
   if (DataF2.data_sent())

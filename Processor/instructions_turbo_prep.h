@@ -17,13 +17,13 @@
 #define REGINT_INSTRUCTIONS \
     X(LDMINT, auto dest = &Proc.get_Ci()[r[0]]; auto source = &Mi[n], \
             *dest++ = (*source).get(); source++) \
-    X(PRINTSTR, ,) \
-    X(PRINTCHR, ,) \
-    
+
+#define REGINT_INSTRUCTIONS_DISABLED \
+    X(PRINTSTR, Proc.out << string((char*)&n,sizeof(n)) << flush,) \
+    X(PRINTCHR, Proc.out << string((char*)&n,1) << flush,) \
+
 #define CLEAR_GF2N_INSTRUCTIONS \
     X(GLDMC, auto dest = &C2[r[0]]; auto source = &M2C[n], \
             *dest++ = (*source).get(); source++) \
-    X(GPRINTREGPLAIN, , ) \
-    
 
 

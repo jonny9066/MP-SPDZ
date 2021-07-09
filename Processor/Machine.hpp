@@ -21,6 +21,14 @@
 #include <pthread.h>
 using namespace std;
 
+
+
+#ifdef TZDEBUG
+#define DEBUG_MACHINE(str) do { cout<<"MACHINE: " << str << endl; } while( false )
+#else
+#define DEBUG_MACHINE(str) do { } while ( false )
+#endif
+
 template<class sint, class sgf2n>
 Machine<sint, sgf2n>::Machine(int my_number, Names& playerNames,
     const string& progname_str, const string& memtype,
@@ -33,6 +41,8 @@ Machine<sint, sgf2n>::Machine(int my_number, Names& playerNames,
     use_encryption(use_encryption), live_prep(live_prep), opts(opts),
     data_sent(0)
 {
+
+  DEBUG_MACHINE("Constructing Machine"); 
   if (opening_sum < 2)
     this->opening_sum = N.num_players();
   if (max_broadcast < 2)
@@ -89,8 +99,10 @@ Machine<sint, sgf2n>::Machine(int my_number, Names& playerNames,
 
   // Keep record of used offline data
   pos.set_num_players(N.num_players());
-
+  // loads program, see BaseMachine
   load_schedule(progname_str);
+  
+  DEBUG_MACHINE("Loaded program"); 
 
 #ifdef VERBOSE
   progs[0].print_offline_cost();
@@ -129,6 +141,7 @@ Machine<sint, sgf2n>::Machine(int my_number, Names& playerNames,
     {
       queues[i]->result();
     }
+  DEBUG_MACHINE("Construction finished"); 
 }
 
 template<class sint, class sgf2n>
@@ -265,6 +278,9 @@ DataPositions Machine<sint, sgf2n>::join_tape(int i)
 template<class sint, class sgf2n>
 void Machine<sint, sgf2n>::run()
 {
+  #ifdef TZDEBUG
+  cout<<"Machine run start"<<endl;
+  #endif
   Timer proc_timer(CLOCK_PROCESS_CPUTIME_ID);
   proc_timer.start();
   timer[0].start();

@@ -1,5 +1,20 @@
 
 // included in Processor.hpp
+#ifndef PROCESSOR_PROCESSOR_HPP_
+#define PROCESSOR_PROCESSOR_HPP_
+
+#include "Processor/Processor.h"
+#include "Processor/Program.h"
+#include "GC/square64.h"
+
+#include "Protocols/ReplicatedInput.hpp"
+#include "Protocols/ReplicatedPrivateOutput.hpp"
+#include "Processor/ProcessorBase.hpp"
+#include "GC/Processor.hpp"
+#include "GC/ShareThread.hpp"
+
+#include <sodium.h>
+#include <string>
 
 #ifdef TZDEBUG
 #define DEBUG_PR(str) do { cout<<"PRCSR: " << str << endl; } while( false )
@@ -130,10 +145,14 @@ string Processor<sint, sgf2n>::get_filename(const char* prefix, bool use_number)
 template<class sint, class sgf2n>
 void Processor<sint, sgf2n>::reset(const Program& program,int arg)
 {
+  // DEBUG_PR("program.num_reg(SINT)= "<<program.num_reg(SINT));
+  // DEBUG_PR("program.num_reg(CINT)= "<<program.num_reg(CINT));
   Proc2.get_S().resize(program.num_reg(SGF2N));
   Proc2.get_C().resize(program.num_reg(CGF2N));
+  Proc2.get_E().resize(program.num_reg(CGF2N));
   Procp.get_S().resize(program.num_reg(SINT));
   Procp.get_C().resize(program.num_reg(CINT));
+  Procp.get_E().resize(program.num_reg(CINT));
   Ci.resize(program.num_reg(INT));
   this->arg = arg;
   Procb.reset(program);
@@ -375,11 +394,15 @@ void Processor<sint, sgf2n>::write_shares_to_file(const vector<int>& data_regist
   binary_file_io.write_to_file(filename, inpbuf);
 }
 
+// maccheck on open vlaues
 template <class T>
 void SubProcessor<T>::POpen(const vector<int>& reg,const Player& P,int size)
 {
+  // (?) reg contain src->dst registers and size is size of a pair?
   assert(reg.size() % 2 == 0);
+  // sz is number of src->dst pairs
   int sz=reg.size() / 2;
+  // (?) pair of registers
   MC.init_open(P, sz * size);
   for (auto it = reg.begin() + 1; it < reg.end(); it += 2)
     for (int i = 0; i < size; i++)
@@ -400,7 +423,7 @@ template<class T>
 void SubProcessor<T>::muls(const vector<int>& reg, int size)
 {
 
-    DEBUG_PR("entered muls");
+    DEBUG_PR("enter muls");
     assert(reg.size() % 3 == 0);
     // number of argument tuples (factor, factor, result)
     int n = reg.size() / 3;
@@ -414,6 +437,7 @@ void SubProcessor<T>::muls(const vector<int>& reg, int size)
             auto& x = proc.S[reg[3 * i + 1] + j];
             auto& y = proc.S[reg[3 * i + 2] + j];
             protocol.prepare_mul(x, y);
+            
         }
     // @TZ open the permutation elements for input wires
     protocol.exchange();
@@ -423,13 +447,16 @@ void SubProcessor<T>::muls(const vector<int>& reg, int size)
           // returns the opened permutation elements and the output wire share
           pair<array<typename T::open_type,2>,T> res = protocol.finalize_mul_prep();
           array<typename T::open_type,2> open_perm = res.first;
-          T out_share = res.second;
-          proc.C[reg[3 * i + 1] + j] = open_perm[0];
-          proc.C[reg[3 * i + 2] + j] = open_perm[1];
+          T& out_share = res.second;
+          // store shares of x,y values (not z)
+          // proc.C[reg[3 * i + 1] + j] = open_perm[0];
+          // proc.C[reg[3 * i + 2] + j] = open_perm[1];
           proc.S[reg[3 * i] + j] = out_share;
         }
-
+    
     protocol.counter += n * size;
+    
+    DEBUG_PR("exit muls");
 }
 
 template<class T>
@@ -640,3 +667,4 @@ ostream& operator<<(ostream& s,const Processor<sint, sgf2n>& P)
 
   return s;
 }
+#endif
