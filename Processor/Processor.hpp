@@ -1,7 +1,9 @@
 
 
-#if defined(TURBOPREP) || defined(TURBOSPEEDZ) 
-#include "Processor_turbo.hpp"
+#if defined(TURBOPREP)
+  #include "Processor_turbo.hpp"
+#elif defined(TURBOSPEEDZ)
+  #include "Processor_turbo_online.hpp"
 #else
 
 #ifndef PROCESSOR_PROCESSOR_HPP_
@@ -20,6 +22,11 @@
 #include <sodium.h>
 #include <string>
 
+#ifdef TZDEBUG
+#define DEBUG_PR(str) do { cout<<"PRCSR: " << str << endl; } while( false )
+#else
+#define DEBUG_PR(str) do { } while ( false )
+#endif
 
 template <class T>
 SubProcessor<T>::SubProcessor(ArithmeticProcessor& Proc, typename T::MAC_Check& MC,
@@ -84,6 +91,7 @@ Processor<sint, sgf2n>::Processor(int thread_num,Player& P,
   external_clients(P.my_num()),
   binary_file_io(Binary_File_IO())
 {
+  DEBUG_PR("constructing regular processor");
   reset(program,0);
 
   public_input_filename = get_filename("Programs/Public-Input/",false);

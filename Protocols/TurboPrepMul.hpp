@@ -1,4 +1,14 @@
 
+#ifndef PROTOCOLS_BEAVER_HPP_
+#define PROTOCOLS_BEAVER_HPP_
+
+#include "Beaver.h"
+
+#include "Replicated.hpp"
+
+#include <array>
+#include <tuple>
+
 template<class T>
 Player& Beaver<T>::branch()
 {
@@ -22,6 +32,7 @@ void Beaver<T>::init_mul(Preprocessing<T>& prep, typename T::MAC_Check& MC)
     triples.clear();
 }
 
+// x and y are the permutation elements for wires x, y
 template<class T>
 typename T::clear Beaver<T>::prepare_mul(const T& x, const T& y, int n)
 {
@@ -29,7 +40,7 @@ typename T::clear Beaver<T>::prepare_mul(const T& x, const T& y, int n)
     triples.push_back({{}});
     auto& triple = triples.back();
     triple = prep->get_triple(n);
-    //@TZ triple[0] - x instead of x - triple[0]
+    //@TZ in SPDZ is was x - triple[0]
     shares.push_back(triple[0] - x);
     shares.push_back(triple[1] - y);
     return 0;
@@ -58,6 +69,7 @@ void Beaver<T>::stop_exchange()
     triple = triples.begin();
 }
 
+//@TZ deprecated, see finalize_mul_prep
 template<class T>
 T Beaver<T>::finalize_mul(int n)
 {
@@ -75,16 +87,19 @@ T Beaver<T>::finalize_mul(int n)
 }
 
 template<class T>
-pair<array<typename T::open_type,2>,T> Beaver<T>::finalize_mul_prep()
+tuple<array<typename T::open_type,2>,T, array<T,3>> Beaver<T>::finalize_mul_prep()
 {
-    // typename T::open_type open_perm[2]; // open permutation elements
-    array<typename T::open_type,2> open_perm; // open permutation elements
-    T& c = (*triple)[2];
+    // save the offset values
+    array<typename T::open_type,2> oval; // open permutation elements
     for (int k = 0; k < 2; k++)
-        open_perm[k] = *it++;
-    T zz = prep->get_random();
-    zz+= c;
-    pair<array<typename T::open_type,2>,T> res = {open_perm, zz};
+        oval[k] = *it++;
+    // compute z wire permutation element
+    T zperm = prep->get_random();
+    T& cc = (*triple)[2];
+    zperm+= cc;
+    // return offset values, z permutation element and associated triple
+    tuple<array<typename T::open_type,2>,T, array<T,3>> res = make_tuple(oval, zperm, *triple);
     triple++;
     return res;
 }
+#endif

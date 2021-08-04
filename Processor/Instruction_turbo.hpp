@@ -621,7 +621,7 @@ inline void Instruction::execute(Processor<sint, sgf2n>& Proc) const
       case SHRSI:
         sint::shrsi(Procp, *this);
         return;
-      case OPEN:// @TZ may open already opened values
+      case OPEN:
          Proc.Procp.POpen(start, Proc.P, size);
         return;
       case GOPEN:
@@ -681,6 +681,11 @@ inline void Instruction::execute(Processor<sint, sgf2n>& Proc) const
         break;
       case PRINTREGPLAIN:
           //@TZ prep disabled printing
+#ifdef TURBOSPEEDZ
+          {
+             Proc.out << Proc.read_Cp(r[0]) << flush;
+           }
+#endif
         break;
       case CONDPRINTPLAIN:
         if (not Proc.read_Cp(r[0]).is_zero())

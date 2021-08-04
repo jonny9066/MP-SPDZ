@@ -1,11 +1,3 @@
-
-
-#if defined(TURBOPREP)
-  #include "Processor_turbo.h"
-#elif defined(TURBOSPEEDZ)
-  #include "Processor_turbo_online.h"
-#else
-
 #ifndef _Processor
 #define _Processor
 
@@ -34,11 +26,20 @@ template <class T>
 class SubProcessor
 {
   CheckVector<typename T::clear> C;
+  CheckVector<typename T::clear> E; // @TZ external values
+  CheckVector<typename T::clear> Rand; // @TZ random vals from prep
+  CheckVector<typename T::clear> Offv; // @TZ open permutation elements for mul gates
   CheckVector<T> S;
+  CheckVector<T> Perm; // @TZ permutation elements
+  CheckVector<T> Ta;
+  CheckVector<T> Tb;
+  CheckVector<T> Tc;
 
   DataPositions bit_usage;
 
-  void resize(int size)       { C.resize(size); S.resize(size); }
+  void resize(int size)       { C.resize(size); S.resize(size); E.resize(size);
+                                Offv.resize(size); Perm.resize(size);Ta.resize(size);
+                                Tb.resize(size);Tc.resize(size);Rand.resize(size); }
 
   template<class sint, class sgf2n> friend class Processor;
   template<class U> friend class SPDZ;
@@ -81,21 +82,81 @@ public:
   {
     return S;
   }
-
+  CheckVector<T>& get_Perm()
+  {
+    return Perm;
+  }
   CheckVector<typename T::clear>& get_C()
   {
     return C;
+  }
+
+  CheckVector<typename T::clear>& get_E()
+  {
+    return E;
+  }
+  CheckVector<typename T::clear>& get_Offv()
+  {
+    return Offv;
+  }  
+  CheckVector<typename T::clear>& get_Rand()
+  {
+    return Rand;
+  }  
+  CheckVector<T>& get_Ta()
+  {
+    return Ta;
+  }
+  CheckVector<T>& get_Tb()
+  {
+    return Tb;
+  }
+  CheckVector<T>& get_Tc()
+  {
+    return Tc;
   }
 
   T& get_S_ref(int i)
   {
     return S[i];
   }
-
+  T& get_Perm_ref(int i)
+  {
+    return Perm[i];
+  }
+  T& get_Ta_ref(int i)
+  {
+    return Ta[i];
+  }
+  T& get_Tb_ref(int i)
+  {
+    return Tb[i];
+  }
+  T& get_Tc_ref(int i)
+  {
+    return Tc[i];
+  }
   typename T::clear& get_C_ref(int i)
   {
     return C[i];
   }
+   typename T::clear& get_E_ref(int i)
+  {
+    return E[i];
+  }
+    typename T::clear& get_Rand_ref(int i)
+  {
+    return Rand[i];
+  }
+
+  // typename T::clear& get_E_ref(int i)
+  // {
+  //   return E[i];
+  // }
+  // typename T::clear& get_Offv_ref(int i) 
+  // {
+  //   return Offv[i];
+  // }
 };
 
 class ArithmeticProcessor : public ProcessorBase
@@ -213,8 +274,22 @@ class Processor : public ArithmeticProcessor
       { return Procp.S[i]; }
     typename sint::clear& get_Cp_ref(int i)
       { return Procp.C[i]; }
+    typename sint::clear& get_Offvp_ref(int i)
+      { return Procp.Offv[i]; }
+    typename sint::clear& get_Ep_ref(int i)
+      { return Procp.E[i]; }
+    typename sint::clear& get_Randp_ref(int i)
+      { return Procp.Rand[i]; }
     sint & get_Sp_ref(int i)
       { return Procp.S[i]; }
+    sint & get_Tap_ref(int i)
+      { return Procp.Ta[i]; }
+    sint & get_Tbp_ref(int i)
+      { return Procp.Tb[i]; }
+    sint & get_Tcp_ref(int i)
+      { return Procp.Tc[i]; }
+    sint & get_Permp_ref(int i) // @TZ
+      { return Procp.Perm[i]; }
     void write_Cp(int i,const typename sint::clear& x)
       { Procp.C[i]=x; }
     void write_Sp(int i,const sint & x)
@@ -239,6 +314,7 @@ class Processor : public ArithmeticProcessor
 
   // Read and write secret numeric data to file (name hardcoded at present)
   void read_shares_from_file(int start_file_pos, int end_file_pos_register, const vector<int>& data_registers);
+  void read_prep_data_from_file(); //@TZ
   void write_shares_to_file(const vector<int>& data_registers);
   
   cint get_inverse2(unsigned m);
@@ -254,4 +330,3 @@ class Processor : public ArithmeticProcessor
 };
 
 #endif
-#endif//else TURBOPREP

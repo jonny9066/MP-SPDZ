@@ -7,6 +7,8 @@
 #define PROTOCOLS_SHAREINTERFACE_H_
 
 #include <vector>
+#include <typeinfo>
+
 using namespace std;
 
 class Player;
@@ -19,6 +21,8 @@ class NoShare;
 class ShareInterface
 {
 public:
+    virtual ~ShareInterface(){};//@TZ virtual destrutor for casting, needed for a test
+
     typedef GC::NoShare part_type;
     typedef GC::NoShare bit_type;
 
@@ -46,6 +50,9 @@ public:
 
     template<class T, class U>
     static void generate_mac_key(T&, U&) {}
+
+    // template<class T>
+    // const T& get_share_tz(T* dummy) const  { (void)dummy; throw runtime_error("get_share_tz not implemented, T is "<<typeid(T).name()); }//@TZ for testing
 };
 
 #endif /* PROTOCOLS_SHAREINTERFACE_H_ */

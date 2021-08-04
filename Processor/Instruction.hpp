@@ -1,7 +1,7 @@
 
-#ifdef TURBOPREP
+#if defined(TURBOPREP) || defined(TURBOSPEEDZ)
 // @TZ use code for turbospeedz prep 
-#include "Instruction_turbo_prep.hpp"
+#include "Instruction_turbo.hpp"
 
 #else // @TZ use code below
 

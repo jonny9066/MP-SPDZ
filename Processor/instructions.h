@@ -14,9 +14,12 @@
 // in switch case statements in files instruction.cpp and instruction.hpp
 // format is X(NAME,PRE,CODE) or X(NAME,CODE)
 
-#ifdef TURBOPREP
+#if defined(TURBOPREP)
 #include "instructions_turbo_prep.h"
+#elif defined(TURBOSPEEDZ)
+#include "instructions_turbo_online.h"
 #else
+
 #define ARITHMETIC_INSTRUCTIONS \
     X(LDI, auto dest = &Procp.get_C()[r[0]]; typename sint::clear tmp = int(n), \
             *dest++ = tmp) \

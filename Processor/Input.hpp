@@ -3,8 +3,10 @@
  *
  */
 
-#ifdef TURBOPREP
+#if defined(TURBOPREP)
 #include "Input_turbo_prep.hpp"
+#elif defined(TURBOSPEEDZ)
+#include "Input_turbo_online.hpp"
 #else
 
 #ifndef PROCESSOR_INPUT_HPP_

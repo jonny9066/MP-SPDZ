@@ -3,6 +3,8 @@
 
 #include "Machine.h"
 
+#include "Protocols/fake-stuff.h"//@TZ to write mac key
+
 #include "Memory.hpp"
 #include "Online-Thread.hpp"
 
@@ -69,7 +71,7 @@ Machine<sint, sgf2n>::Machine(int my_number, Names& playerNames,
     {
       sint::LivePrep::basic_setup(*P);
     }
-
+  //@TZ modified to also write
   sint::read_or_generate_mac_key(prep_dir_prefix<sint>(), *P, alphapi);
   sgf2n::read_or_generate_mac_key(prep_dir_prefix<sgf2n>(), *P, alpha2i);
   sint::bit_type::part_type::read_or_generate_mac_key(
@@ -79,6 +81,7 @@ Machine<sint, sgf2n>::Machine(int my_number, Names& playerNames,
   cerr << "MAC Key p = " << alphapi << endl;
   cerr << "MAC Key 2 = " << alpha2i << endl;
 #endif
+  DEBUG_MACHINE("MAC Key p = " << alphapi);
 
   // for OT-based preprocessing
   sint::clear::next::template init<typename sint::clear>(false);
@@ -102,7 +105,7 @@ Machine<sint, sgf2n>::Machine(int my_number, Names& playerNames,
   // loads program, see BaseMachine
   load_schedule(progname_str);
   
-  DEBUG_MACHINE("Loaded program"); 
+  // DEBUG_MACHINE("Loaded program"); 
 
 #ifdef VERBOSE
   progs[0].print_offline_cost();
@@ -141,7 +144,7 @@ Machine<sint, sgf2n>::Machine(int my_number, Names& playerNames,
     {
       queues[i]->result();
     }
-  DEBUG_MACHINE("Construction finished"); 
+  // DEBUG_MACHINE("Construction finished"); 
 }
 
 template<class sint, class sgf2n>
@@ -278,9 +281,7 @@ DataPositions Machine<sint, sgf2n>::join_tape(int i)
 template<class sint, class sgf2n>
 void Machine<sint, sgf2n>::run()
 {
-  #ifdef TZDEBUG
-  cout<<"Machine run start"<<endl;
-  #endif
+  DEBUG_MACHINE("start run");
   Timer proc_timer(CLOCK_PROCESS_CPUTIME_ID);
   proc_timer.start();
   timer[0].start();
@@ -414,6 +415,7 @@ void Machine<sint, sgf2n>::run()
   cerr << "End of prog" << endl;
 #endif
 }
+
 
 template<class sint, class sgf2n>
 string Machine<sint, sgf2n>::memory_filename()

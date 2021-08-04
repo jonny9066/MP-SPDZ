@@ -1,0 +1,14 @@
+
+
+
+
+print_ln('python print_ln test')
+a = sint.get_input_from(0)
+b = sint.get_input_from(1)
+ar, br = a.reveal(),b.reveal()
+print_ln('got input: %s, %s\n',ar,br)
+
+
+
+ 
+

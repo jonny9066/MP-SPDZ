@@ -2,10 +2,6 @@
  * Replicated.h
  *
  */
-#if defined(TURBOSPEEDZ) || defined(TURBOPREP)
-#include "Replicated_turbo.h"
-#else
-
 
 #ifndef PROTOCOLS_REPLICATED_H_
 #define PROTOCOLS_REPLICATED_H_
@@ -97,6 +93,16 @@ public:
 
     virtual void check() {}
 
+    typename T::open_type finalize_mul_tzonline(int n = -1){ //@TZ
+        (void)n;
+        throw runtime_error("finalize_mul_tzonline() not implemented");
+    }
+
+    
+    tuple<array<typename T::open_type,2>,T,array<T,3>> finalize_mul_prep(){//@TZ
+        throw runtime_error("finalize_mul_prep() not implemented");
+    }
+
 };
 
 template <class T>
@@ -150,4 +156,3 @@ public:
 };
 
 #endif /* PROTOCOLS_REPLICATED_H_ */
-#endif // TURBO

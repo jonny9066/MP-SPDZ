@@ -1,0 +1,24 @@
+PROG = test_open
+PREPEX = ./TZPrep-Player-Online.xy
+
+ONLINEEX = ./TZ-Player-Online.x
+
+
+compile:
+	./compile.py -u -a debug $(PROG)
+
+init: compile
+	echo 43 > Player-Data/Input-P0-0
+	echo 65 > Player-Data/Input-P1-0
+
+prep0:
+	$(PREPEX) -N 2 0 $(PROG)
+prep1:
+	$(PREPEX) -N 2 1 $(PROG)
+online0:
+	$(ONLINEEX) -N 2 0 $(PROG)
+online1:
+	$(ONLINEEX) -N 2 1 $(PROG)
+
+run0: prep0 online0
+run1: prep1 online1

@@ -14,6 +14,7 @@ template<class cgf2n>
 void Instruction::execute_clear_gf2n(vector<cgf2n>& registers,
         vector<cgf2n>& memory, ArithmeticProcessor& Proc) const
 {
+    (void)Proc;//@TZ not used
     auto& C2 = registers;
     auto& M2C = memory;
     switch (opcode)
@@ -56,7 +57,7 @@ void Instruction::gbitcom(vector<cgf2n>& registers) const
 void Instruction::execute_regint(ArithmeticProcessor& Proc, vector<Integer>& Mi) const
 {
     (void) Mi;
-    auto& Ci = Proc.get_Ci();
+    // auto& Ci = Proc.get_Ci(); //@TZ not used
     switch (opcode)
     {
 #define X(NAME, PRE, CODE) \

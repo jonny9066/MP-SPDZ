@@ -23,9 +23,6 @@ YAO = $(patsubst %.cpp,%.o,$(wildcard Yao/*.cpp)) $(OT) BMR/Key.o
 BMR = $(patsubst %.cpp,%.o,$(wildcard BMR/*.cpp BMR/network/*.cpp))
 VM = $(PROCESSOR) $(COMMON) GC/square64.o GC/Instruction.o OT/OTTripleSetup.o OT/BaseOT.o $(LIBSIMPLEOT)
 
-#@TZ
-TURBOPREP = -DTURBOPREP
-TURBOSPEEDZ = -DTURBOSPEEDZ
 
 LIB = libSPDZ.a
 LIBRELEASE = librelease.a

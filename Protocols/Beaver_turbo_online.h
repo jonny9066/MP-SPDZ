@@ -3,13 +3,6 @@
  *
  */
 
-
-#if defined(TURBOPREP)
-#include "TurboPrepMul.h"
-#elif defined(TURBOSPEEDZ)
-#include "Beaver_turbo_online.h"
-#else
-
 #ifndef PROTOCOLS_BEAVER_H_
 #define PROTOCOLS_BEAVER_H_
 
@@ -21,7 +14,6 @@ using namespace std;
 #include "Processor/Data_Files.h"
 
 
-
 template<class T> class SubProcessor;
 template<class T> class MAC_Check_Base;
 class Player;
@@ -30,6 +22,11 @@ template<class T>
 class Beaver : public ProtocolBase<T>
 {
     vector<T> shares;
+    // @TZ permutation elemets for z, opened permutation elements
+    // for x,y and external values for x,y, all from tzprep
+    vector<T> zshares;
+
+
     vector<typename T::open_type> opened;
     vector<array<T, 3>> triples;
     typename vector<typename T::open_type>::iterator it;
@@ -51,12 +48,11 @@ public:
     typename T::clear prepare_mul(const T& x, const T& y, int n = -1);
     void exchange();
     T finalize_mul(int n = -1);
-
+    typename T::open_type finalize_mul_tzonline(int n = -1); //@TZ
     void start_exchange();
     void stop_exchange();
 
     int get_n_relevant_players() { return 1 + T::threshold(P.num_players()); }
 };
 
-#endif // turboprep if
-#endif /* PROTOCOLS_BEAVER_H_ */
+#endif 

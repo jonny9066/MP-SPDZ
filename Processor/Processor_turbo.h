@@ -1,11 +1,3 @@
-
-
-#if defined(TURBOPREP)
-  #include "Processor_turbo.h"
-#elif defined(TURBOSPEEDZ)
-  #include "Processor_turbo_online.h"
-#else
-
 #ifndef _Processor
 #define _Processor
 
@@ -34,11 +26,16 @@ template <class T>
 class SubProcessor
 {
   CheckVector<typename T::clear> C;
+  CheckVector<typename T::clear> E; // @TZ external values
   CheckVector<T> S;
+  CheckVector<T> Ta;
+  CheckVector<T> Tb;
+  CheckVector<T> Tc;
 
   DataPositions bit_usage;
 
-  void resize(int size)       { C.resize(size); S.resize(size); }
+  void resize(int size)       { C.resize(size); S.resize(size); E.resize(size);
+                                Ta.resize(size);Tb.resize(size);Tc.resize(size);}
 
   template<class sint, class sgf2n> friend class Processor;
   template<class U> friend class SPDZ;
@@ -80,6 +77,18 @@ public:
   CheckVector<T>& get_S()
   {
     return S;
+  }  
+  CheckVector<T>& get_Ta()
+  {
+    return Ta;
+  }
+  CheckVector<T>& get_Tb()
+  {
+    return Tb;
+  }
+  CheckVector<T>& get_Tc()
+  {
+    return Tc;
   }
 
   CheckVector<typename T::clear>& get_C()
@@ -87,15 +96,40 @@ public:
     return C;
   }
 
+  CheckVector<typename T::clear>& get_E()
+  {
+    return E;
+  }
+
+
   T& get_S_ref(int i)
   {
     return S[i];
+  }
+  T& get_Ta_ref(int i)
+  {
+    return Ta[i];
+  }
+  T& get_Tb_ref(int i)
+  {
+    return Tb[i];
+  }
+  T& get_Tc_ref(int i)
+  {
+    return Tc[i];
   }
 
   typename T::clear& get_C_ref(int i)
   {
     return C[i];
   }
+
+  typename T::clear& get_E_ref(int i)
+  {
+    return E[i];
+  }
+
+
 };
 
 class ArithmeticProcessor : public ProcessorBase
@@ -213,8 +247,16 @@ class Processor : public ArithmeticProcessor
       { return Procp.S[i]; }
     typename sint::clear& get_Cp_ref(int i)
       { return Procp.C[i]; }
+    typename sint::clear& get_Ep_ref(int i)//@TZ
+      { return Procp.E[i]; }
     sint & get_Sp_ref(int i)
       { return Procp.S[i]; }
+    sint & get_Tap_ref(int i)
+      { return Procp.Ta[i]; }
+    sint & get_Tbp_ref(int i)
+      { return Procp.Tb[i]; }
+    sint & get_Tcp_ref(int i)
+      { return Procp.Tc[i]; }
     void write_Cp(int i,const typename sint::clear& x)
       { Procp.C[i]=x; }
     void write_Sp(int i,const sint & x)
@@ -240,6 +282,7 @@ class Processor : public ArithmeticProcessor
   // Read and write secret numeric data to file (name hardcoded at present)
   void read_shares_from_file(int start_file_pos, int end_file_pos_register, const vector<int>& data_registers);
   void write_shares_to_file(const vector<int>& data_registers);
+  void write_prep_data_to_file(); //@TZ
   
   cint get_inverse2(unsigned m);
 
@@ -254,4 +297,3 @@ class Processor : public ArithmeticProcessor
 };
 
 #endif
-#endif//else TURBOPREP

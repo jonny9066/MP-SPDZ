@@ -2,12 +2,6 @@
  * Input.h
  *
  */
-#if defined(TURBOPREP)
-#include "Input_turbo_prep.h"
-#elif defined(TURBOSPEEDZ)
-#include "Input_turbo_online.h"
-#else
-
 #ifndef PROCESSOR_INPUT_H_
 #define PROCESSOR_INPUT_H_
 
@@ -48,6 +42,9 @@ public:
     template<class U>
     static void prepare(SubProcessor<T>& Proc, int player, const int* params, int size);
     template<class U>
+    static void init_input_turbo_online(SubProcessor<T>& Proc, int player, const int* dest, int size); //@TZ replaces prepare
+
+    template<class U>
     static void finalize(SubProcessor<T>& Proc, int player, const int* params, int size);
 
     InputBase(ArithmeticProcessor* proc = 0);
@@ -65,8 +62,21 @@ public:
     virtual void exchange();
 
     virtual T finalize_mine() = 0;
+    virtual typename T::open_type finalize_mine_ext(){
+        throw runtime_error("finalize_ext not implemented");
+        };//@TZ
     virtual void finalize_other(int player, T& target, octetStream& o, int n_bits = -1) = 0;
+    virtual void finalize_other_tzonline(int player, T& target,typename T::open_type& ev, octetStream& o, int n_bits = -1){
+        (void)player;(void)target;(void)ev; (void)o; (void)n_bits;
+        throw runtime_error("finalize_other_tzonline not implemented");
+    }; //@TZ
+    
+    PointerVector<typename T::open_type>& get_rand(){throw runtime_error("get_rand not implemented");} //@TZ
+    vector< PointerVector<T> >& get_rndshr(){throw runtime_error("get_rndshr not implemented");} //@TZ
     virtual T finalize(int player, int n_bits = -1);
+    virtual pair<T, typename T::open_type> finalize_tzonline(int player, int n_bits = -1); //@TZ
+
+
 
     void raw_input(SubProcessor<T>& proc, const vector<int>& args, int size);
 };
@@ -84,6 +94,9 @@ class Input : public InputBase<T>
     Preprocessing<T>& prep;
     Player& P;
     vector< PointerVector<T> > shares;
+    vector< PointerVector<T> > rndshr; //@TZ shares of rand vals from preprocessing
+    PointerVector<open_type> extvals; // @TZ used as a stack
+    PointerVector<open_type> rand; //@TZ rand vals from preprocessing, must be loaded
     open_type rr, t, xi;
 
 public:
@@ -96,11 +109,13 @@ public:
 
     void add_mine(const open_type& input, int n_bits = -1);
     void add_other(int player);
-
+    PointerVector<open_type>& get_rand(){return rand;} //@TZ
+    vector< PointerVector<T> >& get_rndshr(){return rndshr;} //@TZ
     void send_mine();
 
     T finalize_mine();
+    typename T::open_type finalize_mine_ext();//@TZ
     void finalize_other(int player, T& target, octetStream& o, int n_bits = -1);
+    void finalize_other_tzonline(int player, T& target,typename T::open_type& ev, octetStream& o, int n_bits = -1); //@TZ
 };
-#endif // turbospeedz else
 #endif /* PROCESSOR_INPUT_H_ */

@@ -1,9 +1,4 @@
 
-#ifdef TURBOSPEEDZ
-#include "Share_turbo_online.h"
-#else
-
-
 #ifndef _Share
 #define _Share
 
@@ -101,18 +96,15 @@ class Share_ : public ShareInterface
      { assign(aa, my_num, alphai); }
    Share_(const T& share, const V& mac) : a(share), mac(mac) {}
 
-
-  //  template<class T>
-  //  const T& get_share_tz(T* dummy) const  { (void) dummy; return a; }//@TZ for testing
-
-   const T& get_share() const  {  return a; }
-   const V& get_mac() const   { return mac; }
+   const T& get_share() const          { return a; }
+   const V& get_mac() const            { return mac; }
    void set_share(const T& aa)  { a=aa; }
    void set_mac(const V& aa)    { mac=aa; }
 
    /* Arithmetic Routines */
    void mul(const Share_<T, V>& S,const clear& aa);
    void mul_by_bit(const Share_<T, V>& S,const clear& aa);
+   // this function handles addition of shares
    void add(const Share_<T, V>& S1,const Share_<T, V>& S2);
    void sub(const Share_<T, V>& S1,const Share_<T, V>& S2);
 
@@ -262,4 +254,3 @@ inline void Share_<T, V>::assign(const clear& aa, int my_num,
 }
 
 #endif
-#endif //TURBOSPEEDZ

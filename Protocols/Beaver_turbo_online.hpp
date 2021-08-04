@@ -3,12 +3,6 @@
  *
  */
 
-#if defined(TURBOPREP)
-#include "TurboPrepMul.hpp"
-#elif defined(TURBOSPEEDZ)
-#include "Beaver_turbo_online.hpp"
-#else
-
 #ifndef PROTOCOLS_BEAVER_HPP_
 #define PROTOCOLS_BEAVER_HPP_
 
@@ -17,6 +11,7 @@
 #include "Replicated.hpp"
 
 #include <array>
+
 
 
 template<class T>
@@ -46,13 +41,11 @@ template<class T>
 typename T::clear Beaver<T>::prepare_mul(const T& x, const T& y, int n)
 {
     (void) n;
-    triples.push_back({{}});
-    auto& triple = triples.back();
-    triple = prep->get_triple(n);
-    shares.push_back(x - triple[0]);
-    shares.push_back(y - triple[1]);
+    shares.push_back(x + y);
     return 0;
 }
+
+
 
 template<class T>
 void Beaver<T>::exchange()
@@ -73,9 +66,20 @@ void Beaver<T>::stop_exchange()
 {
     MC->POpen_End(opened, shares, P);
     it = opened.begin();
-    triple = triples.begin();
+    // triple = triples.begin();
 }
 
+
+
+template<class T>
+typename T::open_type Beaver<T>::finalize_mul_tzonline(int n)
+{
+    (void) n;
+    typename T::open_type extval = *it++;
+    return extval;
+}
+
+//@TZ deprecated
 template<class T>
 T Beaver<T>::finalize_mul(int n)
 {
@@ -91,5 +95,4 @@ T Beaver<T>::finalize_mul(int n)
     triple++;
     return tmp;
 }
-#endif // turboprep else
 #endif

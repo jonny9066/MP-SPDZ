@@ -13,9 +13,11 @@
 #include "GC/Processor.hpp"
 #include "GC/ShareThread.hpp"
 
+#include "Math/gfp.h"//@TZ
+
 #include <sodium.h>
 #include <string>
-#include <tuple>
+// #include <typeinfo>
 
 #ifdef TZDEBUG
 #define DEBUG_PR(str) do { cout<<"PRCSR: " << str << endl; } while( false )
@@ -36,7 +38,7 @@ SubProcessor<T>::SubProcessor(typename T::MAC_Check& MC,
     Proc(Proc), MC(MC), P(P), DataF(DataF), protocol(P), input(*this, MC),
     bit_prep(bit_usage)
 {
-  // DEBUG_PR("constructing sub processor");
+  // DEBUG_PR("constructing SubProcessor");
   DataF.set_proc(this);
   DataF.set_protocol(protocol);
   protocol.init_mul(this);
@@ -87,7 +89,7 @@ Processor<sint, sgf2n>::Processor(int thread_num,Player& P,
   external_clients(P.my_num()),
   binary_file_io(Binary_File_IO())
 {
-  DEBUG_PR("constructing tzprep processor");
+  DEBUG_PR("constructing tzonline processor...");
   reset(program,0);
 
   public_input_filename = get_filename("Programs/Public-Input/",false);
@@ -113,6 +115,8 @@ Processor<sint, sgf2n>::Processor(int thread_num,Player& P,
     out.redirect_to_file(stdout_redirect_file);
     Procb.out.redirect_to_file(stdout_redirect_file);
   }
+  //@TZ read preprocessing data
+  read_prep_data_from_file();
 
 }
 
@@ -120,9 +124,6 @@ Processor<sint, sgf2n>::Processor(int thread_num,Player& P,
 template<class sint, class sgf2n>
 Processor<sint, sgf2n>::~Processor()
 {
-  // @TZ save data to file for use in online phase
-  write_prep_data_to_file();
-
   share_thread.post_run();
 #ifdef VERBOSE
   if (sent)
@@ -153,18 +154,24 @@ void Processor<sint, sgf2n>::reset(const Program& program,int arg)
 {
   // DEBUG_PR("program.num_reg(SINT)= "<<program.num_reg(SINT));
   // DEBUG_PR("program.num_reg(CINT)= "<<program.num_reg(CINT));
-  Proc2.get_S().resize(program.num_reg(SGF2N));  //@TZ pay attention to S/C !
+  Proc2.get_S().resize(program.num_reg(SGF2N));
+  Proc2.get_Perm().resize(program.num_reg(SGF2N));
   Proc2.get_Ta().resize(program.num_reg(SGF2N));
   Proc2.get_Tb().resize(program.num_reg(SGF2N));
   Proc2.get_Tc().resize(program.num_reg(SGF2N));
   Proc2.get_C().resize(program.num_reg(CGF2N));
   Proc2.get_E().resize(program.num_reg(CGF2N));
+  Proc2.get_Offv().resize(program.num_reg(CGF2N));
+  Proc2.get_Rand().resize(program.num_reg(CGF2N));
   Procp.get_S().resize(program.num_reg(SINT));
+  Procp.get_Perm().resize(program.num_reg(SINT));
   Procp.get_Ta().resize(program.num_reg(SINT));
   Procp.get_Tb().resize(program.num_reg(SINT));
   Procp.get_Tc().resize(program.num_reg(SINT));
   Procp.get_C().resize(program.num_reg(CINT));
   Procp.get_E().resize(program.num_reg(CINT));
+  Procp.get_Offv().resize(program.num_reg(CINT));
+  Procp.get_Rand().resize(program.num_reg(CINT));
   Ci.resize(program.num_reg(INT));
   this->arg = arg;
   Procb.reset(program);
@@ -385,6 +392,141 @@ void Processor<sint, sgf2n>::read_shares_from_file(int start_file_posn, int end_
   }
 }
 
+// works analogously to loading of vaues in input
+template<class T, class U = gfp_<0, 2>>
+bool assert_correct_prep_data(CheckVector<T>& mp, CheckVector<T>& op,
+                                  CheckVector<typename T::clear>& mr){
+  bool res = true;
+  typedef Share<U> uShare;   
+  typedef typename Share<U>::clear uClear;     
+  U ZERO(0);
+
+  CheckVector<uShare> myPerm;
+  CheckVector<uShare> otherPerm;
+  CheckVector<uClear> myRand;
+  uShare* temp_ptr1;
+  uShare* temp_ptr2;
+  uClear* temp_ptr3;
+
+  for(long unsigned int i = 0; i< mr.size(); ++i){
+    temp_ptr1 = dynamic_cast<uShare*>(&mp.at(i));
+    temp_ptr2 = dynamic_cast<uShare*>(&op.at(i));
+    temp_ptr3 = dynamic_cast<uClear*>(&mr.at(i));
+    if((temp_ptr1==nullptr)||(temp_ptr2==nullptr)||(temp_ptr3==nullptr)){
+      DEBUG_PR("casting failed");
+      return false;
+    }
+
+    myPerm.push_back(*temp_ptr1);
+    otherPerm.push_back(*temp_ptr2);
+    myRand.push_back(*temp_ptr3);
+  }
+
+  DEBUG_PR("cast success");
+  // for(long unsigned int i = 0; i< mr.size(); ++i){
+  //   uClear r = myRand.at(i);
+  //   uClear s1 = myPerm.at(i).get_share();
+  //   uClear s2 = otherPerm.at(i).get_share();
+  //   DEBUG_PR("register "<<i<<" contains:");
+  //   DEBUG_PR("s1, s2, r: "<<s1<<", "<<s2<<", "<<r);
+  // }
+
+  for(long unsigned int i = 0; i< mr.size(); ++i){
+    uClear r = myRand.at(i);
+    uClear s1 = myPerm.at(i).get_share();
+    uClear s2 = otherPerm.at(i).get_share();
+    // auto r = mr.at(i);
+    if(r != ZERO || s1 != ZERO){
+      DEBUG_PR("checking register "<<i);
+      DEBUG_PR("s1, s2, r: "<<s1<<", "<<s2<<", "<<r);
+      if(s1 + s2 != r){
+        DEBUG_PR("check failed, s1+s2= "<<s1 + s2);
+        res = false;
+      }
+      else{
+        DEBUG_PR("check success, s1+s2= "<<s1 + s2);
+      }
+    }
+  }
+  return res;
+}
+
+template<class sint, class sgf2n>
+void Processor<sint, sgf2n>::read_prep_data_from_file() {
+  DEBUG_PR("reading prep data...");
+  unsigned int size = Procp.get_S().size(); // size is number of wires
+  string my_num = to_string(P.my_num());
+  string other_num = to_string(1-P.my_num());
+  
+  string sfilename = "Persistence/PrepdataS-P" + my_num + ".data";
+  string cfilename = "Persistence/PrepdataC-P" + my_num + ".data";
+  string efilename = "Persistence/PrepdataE-P" + my_num + ".data";
+  string tafilename = "Persistence/PrepdataTa-P" + my_num + ".data";
+  string tbfilename = "Persistence/PrepdataTb-P" + my_num + ".data";
+  string tcfilename = "Persistence/PrepdataTc-P" + my_num + ".data";
+
+  // for test
+  string efilename2 = "Persistence/PrepdataE-P" + other_num + ".data";
+  string sfilename2 = "Persistence/PrepdataS-P" + other_num + ".data";
+  CheckVector<sint> otherPerm;
+  CheckVector<typename sint::clear> otherRand;
+  otherPerm.resize(Procp.get_Perm().size());
+  otherRand.resize(Procp.get_Rand().size());
+  vector< sint > soutbuf2 (size); 
+  vector< typename sint::clear  > eoutbuf2 (size);
+  
+
+  vector< sint > soutbuf (size); 
+  vector< sint > taoutbuf (size); 
+  vector< sint > tboutbuf (size); 
+  vector< sint > tcoutbuf (size); 
+  vector< typename sint::clear  > eoutbuf (size);
+  vector< typename sint::clear  > coutbuf (size);
+
+  int eof = -1;
+  try {
+    // 0 start, -1 eof
+    binary_file_io.read_from_file(sfilename, soutbuf, 0, eof);
+    binary_file_io.read_from_file(tafilename, taoutbuf, 0, eof);
+    binary_file_io.read_from_file(tbfilename, tboutbuf, 0, eof);
+    binary_file_io.read_from_file(tcfilename, tcoutbuf, 0, eof);
+    binary_file_io.read_from_file(efilename, eoutbuf, 0, eof);
+    binary_file_io.read_from_file(cfilename, coutbuf, 0, eof);
+
+    //for test
+    binary_file_io.read_from_file(sfilename2, soutbuf2, 0, eof);
+    binary_file_io.read_from_file(efilename2, eoutbuf2, 0, eof);
+
+    // in prep S = perm, C = offset, E = open rand vals
+    // in online Perm, Offv, Rand
+    for (unsigned int i = 0; i < size; i++)
+    {
+      get_Permp_ref(i) = soutbuf[i];
+      get_Offvp_ref(i) = coutbuf[i];
+      get_Randp_ref(i) = eoutbuf[i];
+      get_Tap_ref(i) = taoutbuf[i];
+      get_Tbp_ref(i) = tboutbuf[i];
+      get_Tcp_ref(i) = tcoutbuf[i];
+
+      //load other player's perm and rand for test
+      otherPerm[i] = soutbuf2[i];
+      otherRand[i] = eoutbuf2[i];
+    }
+    //@TZ ??? don't know if needed, ignoring for now
+    // write_Ci(end_file_pos_register, (long)end_file_posn);    
+  }
+  catch (file_missing& e) {
+    cerr << "Got file missing error, will return -2. " << e.what() << endl;
+    //@TZ ??? don't know if needed, ignoring for now
+    // write_Ci(end_file_pos_register, (long)-2);
+  }
+
+  bool testRes = assert_correct_prep_data<sint>(Procp.get_Perm(), otherPerm, Procp.get_Rand());
+  if(!testRes)
+    throw runtime_error("Loading prep data failed");
+  DEBUG_PR("Prep data test success!");
+}
+
 // Append share data in data_registers to end of file. Expects Persistence directory to exist.
 template<class sint, class sgf2n>
 void Processor<sint, sgf2n>::write_shares_to_file(const vector<int>& data_registers) {
@@ -404,48 +546,6 @@ void Processor<sint, sgf2n>::write_shares_to_file(const vector<int>& data_regist
   }
 
   binary_file_io.write_to_file(filename, inpbuf);
-}
-// Append share data in data_registers to end of file. Expects Persistence directory to exist.
-template<class sint, class sgf2n>
-void Processor<sint, sgf2n>::write_prep_data_to_file() {
-  DEBUG_PR("writing prep data to file");
-  string dir = "Persistence";
-  mkdir_p(dir.c_str());
-
-  string sfilename = dir + "/PrepdataS-P" + to_string(P.my_num()) + ".data";
-  string cfilename = dir + "/PrepdataC-P" + to_string(P.my_num()) + ".data";
-  string efilename = dir + "/PrepdataE-P" + to_string(P.my_num()) + ".data";
-  string tafilename = dir + "/PrepdataTa-P" + to_string(P.my_num()) + ".data";
-  string tbfilename = dir + "/PrepdataTb-P" + to_string(P.my_num()) + ".data";
-  string tcfilename = dir + "/PrepdataTc-P" + to_string(P.my_num()) + ".data";
-
-  unsigned int size = Procp.get_C().size(); // size is number of wires
-
-  vector< sint > sinpbuf (size); 
-  vector< sint > tainpbuf (size); 
-  vector< sint > tbinpbuf (size); 
-  vector< sint > tcinpbuf (size); 
-  vector< typename sint::clear  > einpbuf (size);
-  vector< typename sint::clear  > cinpbuf (size);
-
-  // S = perm, C = offset, E = random vals
-  for (unsigned int i = 0; i < size; i++)
-  {
-    sinpbuf[i] = get_Sp_ref(i);
-    cinpbuf[i] = get_Cp_ref(i);
-    einpbuf[i] = get_Ep_ref(i);
-    tainpbuf[i] = get_Tap_ref(i);
-    tbinpbuf[i] = get_Tbp_ref(i);
-    tcinpbuf[i] = get_Tcp_ref(i);
-  }
-    
-
-  binary_file_io.write_to_file(sfilename, sinpbuf);
-  binary_file_io.write_to_file(cfilename, cinpbuf);
-  binary_file_io.write_to_file(efilename, einpbuf);
-  binary_file_io.write_to_file(tafilename, tainpbuf);
-  binary_file_io.write_to_file(tbfilename, tbinpbuf);
-  binary_file_io.write_to_file(tcfilename, tcinpbuf);
 }
 
 // maccheck on open vlaues
@@ -487,30 +587,35 @@ void SubProcessor<T>::muls(const vector<int>& reg, int size)
     for (int i = 0; i < n; i++)
         for (int j = 0; j < size; j++)
         {
-            // x and y are permutation element shares on gate input wires
-            auto& x = proc.S[reg[3 * i + 1] + j];
-            auto& y = proc.S[reg[3 * i + 2] + j];
-            protocol.prepare_mul(x, y);
-            
+            // // x and y are shares of 
+            // auto& x = proc.S[reg[3 * i + 1] + j];
+            // auto& y = proc.S[reg[3 * i + 2] + j];
+
+            // compute shares of the output wire and send to protocol for opening
+            // of ez (external value of output wire)
+            T& a = proc.Ta[reg[3 * i] + j];
+            T& b = proc.Tb[reg[3 * i] + j];
+            T& c = proc.Tc[reg[3 * i] + j];
+            typename T::clear& ex = proc.E[reg[3 * i + 1] + j];
+            typename T::clear& ey = proc.E[reg[3 * i + 2] + j];
+            typename T::clear& ox = proc.Offv[reg[3 * i + 1] + j];
+            typename T::clear& oy = proc.Offv[reg[3 * i + 2] + j];
+            typename T::clear ehx = ex + ox;
+            typename T::clear ehy = ey + oy;
+            // compute share of the output value and save it
+            T vz = T::constant(ehx * ehy, P.my_num(), MC.get_alphai()) - ehy*a - ehx*b + c;
+            proc.S[reg[3 * i] + j] = vz;
+            // send shares of permutation value and wire value to protocol for opening and getting ext val
+            T& pz = proc.S[reg[3 * i] + j];
+            protocol.prepare_mul(vz, pz);
         }
-    // @TZ open offest values
+    // @TZ open vz+pz
     protocol.exchange();
     for (int i = 0; i < n; i++)
-        for (int j = 0; j < size; j++)
-        {
-          // returns the offset values, the output wire share and triple
-          tuple<array<typename T::open_type,2>,T,array<T,3>> res = protocol.finalize_mul_prep();
-          array<typename T::open_type,2> ovals = get<0>(res);
-          T& out_share = get<1>(res);
-          array<T,3>& triple = get<2>(res);
-          // store shares of x,y values (not z)
-          proc.C[reg[3 * i + 1] + j] = ovals[0];
-          proc.C[reg[3 * i + 2] + j] = ovals[1];
-          proc.S[reg[3 * i] + j] = out_share;
-          proc.Ta[reg[3 * i] + j] = triple[0];
-          proc.Tb[reg[3 * i] + j] = triple[1];
-          proc.Tc[reg[3 * i] + j] = triple[2];
-        }
+      for (int j = 0; j < size; j++)
+      {
+        proc.E[reg[3 * i] + j] = protocol.finalize_mul_tzonline();
+      }
     
     protocol.counter += n * size;
     

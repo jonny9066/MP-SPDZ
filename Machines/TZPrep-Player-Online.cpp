@@ -13,7 +13,7 @@
 int main(int argc, const char** argv)
 {   
 #ifdef TZDEBUG
-    std::cout<<"DEBUG: Running TZ FDP"<<std::endl;
+    std::cout<<"DEBUG: Running TZ Prep"<<std::endl;
 #endif
     ez::ezOptionParser opt;
     DishonestMajorityFieldMachine<Share>(argc, argv, opt, false);

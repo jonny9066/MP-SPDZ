@@ -1,9 +1,3 @@
-
-
-#ifdef TURBOSPEEDZ
-#include "Share_turbo_online.hpp"
-#else
-
 #ifndef PROTOCOLS_SHARE_H_
 #define PROTOCOLS_SHARE_H_
 
@@ -26,10 +20,6 @@ void Share_<T, V>::read_or_generate_mac_key(string directory, const Player& P,
 #endif
         SeededPRNG G;
         key.randomize(G);
-        //@TZ also write MAC, would be better to do this more explicitly
-#ifdef TURBOPREP
-        write_mac_key(directory, P.my_num(), P.num_players(), key);
-#endif
     }
 }
 
@@ -67,4 +57,3 @@ inline void Share_<T, V>::unpack(octetStream& os, bool full)
 }
 
 #endif
-#endif //@TZ TURBOSPEEDZ
