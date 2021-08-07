@@ -20,6 +20,12 @@
 #include <pthread.h>
 using namespace std;
 
+#ifdef TZDEBUG
+#define DEBUG_ONTH(str) do { cout<<"ONTHRD: " << str << endl; } while( false )
+#else
+#define DEBUG_ONTH(str) do { } while ( false )
+#endif
+
 
 template<class sint, class sgf2n>
 template<class T>
@@ -229,13 +235,18 @@ void thread_info<sint, sgf2n>::Sub_Main_Func()
 #ifdef DEBUG_THREADS
           printf("\tClient %d about to run %d\n",num,program);
 #endif
+
           Proc.reset(progs[program], job.arg);
 
           // Bits, Triples, Squares, and Inverses skipping
           Proc.DataF.seekg(job.pos);
           // reset for actual usage
           Proc.DataF.reset_usage();
-             
+
+          DEBUG_ONTH("before program run");
+#ifdef TZDEBUG
+          Proc.Procp.print_registers();
+#endif             
           //printf("\tExecuting program");
           // Execute the program
           progs[program].execute(Proc);
@@ -255,7 +266,10 @@ void thread_info<sint, sgf2n>::Sub_Main_Func()
 	 wait_timer.stop();
        }  
     }
-
+  DEBUG_ONTH("after program run, before 'Proc.Procp.protocol.check();'");
+#ifdef TZDEBUG
+  Proc.Procp.print_registers();
+#endif 
   // protocol check before last MAC check
   Proc.Procp.protocol.check();
   Proc.Proc2.protocol.check();
@@ -264,7 +278,10 @@ void thread_info<sint, sgf2n>::Sub_Main_Func()
   MC2->Check(P);
   MCp->Check(P);
   Proc.share_thread.MC->Check(P);
-
+//   DEBUG_ONTH("after 'Proc.Procp.protocol.check();'");
+// #ifdef TZDEBUG
+//   Proc.Procp.print_registers();
+// #endif 
   //cout << num << " : Checking broadcast" << endl;
   P.Check_Broadcast();
   //cout << num << " : Broadcast checked "<< endl;

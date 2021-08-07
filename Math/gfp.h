@@ -11,7 +11,7 @@ using namespace std;
 #include "Math/Bit.h"
 #include "Math/Setup.h"
 #include "Tools/random.h"
-#include "GC/NoShare.h"
+// #include "GC/NoShare.h" //@TZ disabled to prevent compilation error
 #include "Processor/OnlineOptions.h"
 
 #include "Math/modp.hpp"

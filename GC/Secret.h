@@ -43,6 +43,7 @@ template<class T> class Machine;
 template <class T>
 class Secret
 {
+
 #ifdef FIXED_REGISTERS
     typedef FixedVector<T, FIXED_REGISTERS> RegVector;
 #else
@@ -123,6 +124,10 @@ public:
 
     Secret();
     Secret(const Integer& x) { *this = x; }
+#if defined(TZDEBUG)
+        virtual ~Secret(){} //@TZ for debugging
+#endif
+
 
     void load_clear(int n, const Integer& x);
     void operator=(const Integer& x) { load_clear(default_length, x); }

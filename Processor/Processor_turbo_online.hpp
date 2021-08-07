@@ -395,7 +395,7 @@ void Processor<sint, sgf2n>::read_shares_from_file(int start_file_posn, int end_
 // works analogously to loading of vaues in input
 template<class T, class U = gfp_<0, 2>>
 bool assert_correct_prep_data(CheckVector<T>& mp, CheckVector<T>& op,
-                                  CheckVector<typename T::clear>& mr){
+        CheckVector<typename T::clear>& mr, CheckVector<typename T::clear>& orr){
   bool res = true;
   typedef Share<U> uShare;   
   typedef typename Share<U>::clear uClear;     
@@ -404,15 +404,19 @@ bool assert_correct_prep_data(CheckVector<T>& mp, CheckVector<T>& op,
   CheckVector<uShare> myPerm;
   CheckVector<uShare> otherPerm;
   CheckVector<uClear> myRand;
+  CheckVector<uClear> otherRand;
   uShare* temp_ptr1;
   uShare* temp_ptr2;
   uClear* temp_ptr3;
+  uClear* temp_ptr4;
 
   for(long unsigned int i = 0; i< mr.size(); ++i){
     temp_ptr1 = dynamic_cast<uShare*>(&mp.at(i));
     temp_ptr2 = dynamic_cast<uShare*>(&op.at(i));
     temp_ptr3 = dynamic_cast<uClear*>(&mr.at(i));
-    if((temp_ptr1==nullptr)||(temp_ptr2==nullptr)||(temp_ptr3==nullptr)){
+    temp_ptr4 = dynamic_cast<uClear*>(&orr.at(i));
+    if((temp_ptr1==nullptr)||(temp_ptr2==nullptr)||
+        (temp_ptr3==nullptr)||(temp_ptr4==nullptr)){
       DEBUG_PR("casting failed");
       return false;
     }
@@ -420,30 +424,43 @@ bool assert_correct_prep_data(CheckVector<T>& mp, CheckVector<T>& op,
     myPerm.push_back(*temp_ptr1);
     otherPerm.push_back(*temp_ptr2);
     myRand.push_back(*temp_ptr3);
+    otherRand.push_back(*temp_ptr4);
   }
 
-  DEBUG_PR("cast success");
-  // for(long unsigned int i = 0; i< mr.size(); ++i){
-  //   uClear r = myRand.at(i);
-  //   uClear s1 = myPerm.at(i).get_share();
-  //   uClear s2 = otherPerm.at(i).get_share();
-  //   DEBUG_PR("register "<<i<<" contains:");
-  //   DEBUG_PR("s1, s2, r: "<<s1<<", "<<s2<<", "<<r);
-  // }
-
+  DEBUG_PR("cast success, displaying registers");
   for(long unsigned int i = 0; i< mr.size(); ++i){
-    uClear r = myRand.at(i);
+    uClear r1 = myRand.at(i);
+    uClear r2 = otherRand.at(i);
     uClear s1 = myPerm.at(i).get_share();
     uClear s2 = otherPerm.at(i).get_share();
+    DEBUG_PR("register "<<i<<" contains:");
+    DEBUG_PR("s1, s2: "<<s1<<", "<<s2);
+    DEBUG_PR("r1, r2: "<<r1<<", "<<r2);
+  }
+
+  DEBUG_PR("Checking that shares add up");
+  for(long unsigned int i = 0; i< mr.size(); ++i){
+    uClear r1 = myRand.at(i);
+    uClear r2 = otherRand.at(i);
+    uClear s1 = myPerm.at(i).get_share();
+    uClear s2 = otherPerm.at(i).get_share();
+    int k;
+    uClear r;
     // auto r = mr.at(i);
-    if(r != ZERO || s1 != ZERO){
-      DEBUG_PR("checking register "<<i);
-      DEBUG_PR("s1, s2, r: "<<s1<<", "<<s2<<", "<<r);
+    if(r1 != ZERO || r2 != ZERO){
+      if(r2 == ZERO){
+        k = 1;
+        r = r1;
+      }else{
+        k = 2;
+        r = r2;
+      }
+      DEBUG_PR("Checking for r"<<k<<"="<<r);
+      DEBUG_PR("s1, s2: "<<s1<<", "<<s2);
       if(s1 + s2 != r){
         DEBUG_PR("check failed, s1+s2= "<<s1 + s2);
         res = false;
-      }
-      else{
+      }else{
         DEBUG_PR("check success, s1+s2= "<<s1 + s2);
       }
     }
@@ -521,7 +538,7 @@ void Processor<sint, sgf2n>::read_prep_data_from_file() {
     // write_Ci(end_file_pos_register, (long)-2);
   }
 
-  bool testRes = assert_correct_prep_data<sint>(Procp.get_Perm(), otherPerm, Procp.get_Rand());
+  bool testRes = assert_correct_prep_data<sint>(Procp.get_Perm(), otherPerm, Procp.get_Rand(), otherRand);
   if(!testRes)
     throw runtime_error("Loading prep data failed");
   DEBUG_PR("Prep data test success!");

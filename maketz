@@ -1,5 +1,5 @@
 PROG = test_open
-PREPEX = ./TZPrep-Player-Online.xy
+PREPEX = ./TZPrep-Player-Online.x
 
 ONLINEEX = ./TZ-Player-Online.x
 

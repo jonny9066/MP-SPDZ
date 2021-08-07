@@ -74,6 +74,8 @@ public:
       int b);
   void conv2ds(const Instruction& instruction);
 
+  void print_registers();//@TZ for debug
+
   CheckVector<T>& get_S()
   {
     return S;
@@ -118,7 +120,6 @@ public:
   {
     return Tc[i];
   }
-
   typename T::clear& get_C_ref(int i)
   {
     return C[i];
@@ -128,7 +129,6 @@ public:
   {
     return E[i];
   }
-
 
 };
 

@@ -880,6 +880,7 @@ inline void Instruction::execute(Processor<sint, sgf2n>& Proc) const
 template<class sint, class sgf2n>
 void Program::execute(Processor<sint, sgf2n>& Proc) const
 {
+  DEBUG_INSTR("begin program execution");
   unsigned int size = p.size();
   Proc.PC=0;
 
@@ -931,6 +932,6 @@ void Program::execute(Processor<sint, sgf2n>& Proc) const
           instruction.execute(Proc);
         }
     }
-    DEBUG_INSTR("Execution complete");
+  DEBUG_INSTR("end program execution");
 }
 #endif

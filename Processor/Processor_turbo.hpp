@@ -17,6 +17,8 @@
 #include <string>
 #include <tuple>
 
+#include "Math/gfp.h"//@TZ for test
+
 #ifdef TZDEBUG
 #define DEBUG_PR(str) do { cout<<"PRCSR: " << str << endl; } while( false )
 #else
@@ -405,12 +407,70 @@ void Processor<sint, sgf2n>::write_shares_to_file(const vector<int>& data_regist
 
   binary_file_io.write_to_file(filename, inpbuf);
 }
+
+// // similar to the analogous function in tzonline
+// template<class T, class U = gfp_<0, 2>>
+// void assert_correct_prep_data(CheckVector<T>& p,CheckVector<typename T::clear>& r){
+//   typedef Share<U> uShare;   
+//   typedef typename Share<U>::clear uClear;     
+//   U ZERO(0);
+
+//   uShare* temp_ptr1;
+//   uClear* temp_ptr2;
+
+//   for(long unsigned int i = 0; i< r.size(); ++i){
+//     DEBUG_PR("checking register "<<i);
+//     temp_ptr1 = dynamic_cast<uShare*>(&p.at(i));
+//     temp_ptr2 = dynamic_cast<uClear*>(&r.at(i));
+//     if((temp_ptr1==nullptr)||(temp_ptr2==nullptr)){
+//       DEBUG_PR("casting failed");
+//       return;
+//     }
+//     DEBUG_PR("random value is (0 if not mine): "<< *temp_ptr2);
+//     DEBUG_PR("my share is: "<< temp_ptr1->get_share());
+//   }
+// }
+
+template<class T>
+void SubProcessor<T>::print_registers(){
+#ifndef TZDEBUG
+  cout<<"can't print registers without TZDEBUG flag"<<endl;
+#endif
+  typedef Share<gfp_<0, 2>> uShare;   
+  typedef gfp_<0, 2> uClear;     
+
+  unsigned int size = get_S().size();
+  uShare* temp_ptr1;
+  uClear* temp_ptr2;
+  uClear* temp_ptr3;
+
+  cout<<"-==printing registers==-"<<endl;
+  for (unsigned int i = 0; i < size; i++)
+  {
+    temp_ptr1 = dynamic_cast<uShare*>(&get_S_ref(i));
+    temp_ptr2 = dynamic_cast<uClear*>(&get_E_ref(i));
+    temp_ptr3 = dynamic_cast<uClear*>(&get_C_ref(i));
+    if((temp_ptr1==nullptr)||(temp_ptr2==nullptr)||(temp_ptr3==nullptr)){
+      DEBUG_PR("casting failed");
+      return;
+    }
+    cout<<"register "<<i<<endl;
+    cout<<"S: "<<temp_ptr1->get_share()<<endl;
+    cout<<"E: "<< *temp_ptr2<<endl;
+    cout<<"C: "<< *temp_ptr3<<endl;
+  }
+  cout<<"-==printing registers finished==-"<<endl;
+}
+
 // Append share data in data_registers to end of file. Expects Persistence directory to exist.
 template<class sint, class sgf2n>
 void Processor<sint, sgf2n>::write_prep_data_to_file() {
   DEBUG_PR("writing prep data to file");
   string dir = "Persistence";
   mkdir_p(dir.c_str());
+
+  // assert_correct_prep_data<sint>(Procp.get_S(), Procp.get_E());
+  Procp.print_registers();
 
   string sfilename = dir + "/PrepdataS-P" + to_string(P.my_num()) + ".data";
   string cfilename = dir + "/PrepdataC-P" + to_string(P.my_num()) + ".data";
@@ -446,6 +506,8 @@ void Processor<sint, sgf2n>::write_prep_data_to_file() {
   binary_file_io.write_to_file(tafilename, tainpbuf);
   binary_file_io.write_to_file(tbfilename, tbinpbuf);
   binary_file_io.write_to_file(tcfilename, tcinpbuf);
+
+  DEBUG_PR("writing prep data to file complete");
 }
 
 // maccheck on open vlaues

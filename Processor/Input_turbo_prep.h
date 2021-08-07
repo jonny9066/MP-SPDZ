@@ -10,7 +10,10 @@ using namespace std;
 #include "Tools/time-func.h"
 #include "Tools/PointerVector.h"
 
-
+// #include "Processor.h"
+// #include "Processor/DummyProtocol.h"//@TZ
+#include "Math/gfp.h"//@TZ
+#include "Protocols/Share.h"//@TZ
 
 #ifdef TZDEBUG
 #define DEBUG_IN(str) do { cout<<"INPUT: " << str << endl; } while( false )
@@ -33,6 +36,10 @@ protected:
     Timer timer;
 
 public:
+    // @TZ for testing
+    typedef Share<gfp_<0, 2>> uShare;   
+    typedef gfp_<0, 2> uClear;  
+
     // vector of octetStram(s) for every player
     // used to broadcast values
     vector<octetStream> os;
@@ -80,6 +87,10 @@ public:
 template<class T>
 class Input : public InputBase<T>
 {
+    // @TZ for testing
+    typedef Share<gfp_<0, 2>> uShare;   
+    typedef gfp_<0, 2> uClear;  
+    
     typedef typename T::open_type open_type;
     typedef typename T::clear clear;
     typedef typename T::MAC_Check MAC_Check;

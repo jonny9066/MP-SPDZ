@@ -39,8 +39,9 @@ public:
     void normalize() {}
 
     void randomize_part(PRNG&, int) { throw not_implemented(); }
-
+#ifdef TZDEBUG
     virtual ~ValueInterface(){} //@TZ need polymorphism for testing
+#endif
 };
 
 #endif /* MATH_VALUEINTERFACE_H_ */
