@@ -266,10 +266,7 @@ void thread_info<sint, sgf2n>::Sub_Main_Func()
 	 wait_timer.stop();
        }  
     }
-  DEBUG_ONTH("after program run, before 'Proc.Procp.protocol.check();'");
-#ifdef TZDEBUG
-  Proc.Procp.print_registers();
-#endif 
+
   // protocol check before last MAC check
   Proc.Procp.protocol.check();
   Proc.Proc2.protocol.check();

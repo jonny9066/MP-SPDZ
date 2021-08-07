@@ -471,11 +471,14 @@ inline void Instruction::execute(Processor<sint, sgf2n>& Proc) const
   int r[3] = {this->r[0], this->r[1], this->r[2]};
   int n = this->n;
   for (int i = 0; i < size; i++) 
-  { switch (opcode)
+  { 
+    switch (opcode)
     {
       case LDMC:
+#ifndef TURBOPREP
         Proc.write_Cp(r[0],Proc.machine.Mp.read_C(n));
         n++;
+#endif
         break;
       case LDMCI:
         Proc.write_Cp(r[0], Proc.machine.Mp.read_C(Proc.read_Ci(r[1])));
@@ -681,7 +684,7 @@ inline void Instruction::execute(Processor<sint, sgf2n>& Proc) const
         break;
       case PRINTREGPLAIN:
           //@TZ prep disabled printing
-#ifdef TURBOSPEEDZ
+#ifndef TURBOPREP
           {
              Proc.out << Proc.read_Cp(r[0]) << flush;
            }
@@ -906,16 +909,25 @@ void Program::execute(Processor<sint, sgf2n>& Proc) const
 #endif
 
       Proc.PC++;
-      // DEBUG_INSTR("executing " << showbase << hex << instruction.get_opcode()  << dec );
+      DEBUG_INSTR("executing instruction" << showbase << hex << instruction.get_opcode()  << dec );
       switch(instruction.get_opcode())
         {
 #define X(NAME, PRE, CODE) \
         case NAME: { PRE; for (int i = 0; i < size; i++) { CODE; } } break;
         ARITHMETIC_INSTRUCTIONS
 #undef X
+#define X(NAME, PRE, CODE) \
+        case NAME: break;
+        ARITHMETIC_INSTRUCTIONS_DISABLED
+#undef X
 #define X(NAME, PRE, CODE) case NAME:
         CLEAR_GF2N_INSTRUCTIONS
         instruction.execute_clear_gf2n(Proc2.get_C(), Proc.machine.M2.MC, Proc); break;
+
+#define X(NAME, PRE, CODE) case NAME:
+        CLEAR_GF2N_INSTRUCTIONS_DISABLED
+        break;
+        
 #undef X
 #define X(NAME, PRE, CODE) case NAME:
         REGINT_INSTRUCTIONS
@@ -931,6 +943,7 @@ void Program::execute(Processor<sint, sgf2n>& Proc) const
         default:
           instruction.execute(Proc);
         }
+        Procp.print_registers();
     }
   DEBUG_INSTR("end program execution");
 }
