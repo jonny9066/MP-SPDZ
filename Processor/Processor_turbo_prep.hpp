@@ -38,7 +38,6 @@ SubProcessor<T>::SubProcessor(typename T::MAC_Check& MC,
     Proc(Proc), MC(MC), P(P), DataF(DataF), protocol(P), input(*this, MC),
     bit_prep(bit_usage)
 {
-  // DEBUG_PR("constructing sub processor");
   DataF.set_proc(this);
   DataF.set_protocol(protocol);
   protocol.init_mul(this);
@@ -89,7 +88,6 @@ Processor<sint, sgf2n>::Processor(int thread_num,Player& P,
   external_clients(P.my_num()),
   binary_file_io(Binary_File_IO())
 {
-  DEBUG_PR("constructing tzprep processor");
   reset(program,0);
 
   public_input_filename = get_filename("Programs/Public-Input/",false);
@@ -98,7 +96,6 @@ Processor<sint, sgf2n>::Processor(int thread_num,Player& P,
   private_input.open(private_input_filename.c_str());
   public_output.open(get_filename(PREP_DIR "Public-Output-",true).c_str(), ios_base::out);
   private_output.open(get_filename(PREP_DIR "Private-Output-",true).c_str(), ios_base::out);
-
   open_input_file(P.my_num(), thread_num, machine.opts.cmd_private_input_file);
 
   secure_prng.ReSeed();
@@ -109,7 +106,6 @@ Processor<sint, sgf2n>::Processor(int thread_num,Player& P,
   out.activate(output);
   Procb.out.activate(output);
   setup_redirection(P.my_num(), thread_num, opts);
-
   if (stdout_redirect_file.is_open())
   {
     out.redirect_to_file(stdout_redirect_file);
@@ -165,8 +161,10 @@ void Processor<sint, sgf2n>::reset(const Program& program,int arg)
   Procp.get_Ta().resize(program.num_reg(SINT));
   Procp.get_Tb().resize(program.num_reg(SINT));
   Procp.get_Tc().resize(program.num_reg(SINT));
-  Procp.get_C().resize(program.num_reg(CINT));
-  Procp.get_E().resize(program.num_reg(CINT));
+  Procp.get_C().resize(program.num_reg(SINT)); // @TZ need same number of registers
+  Procp.get_E().resize(program.num_reg(SINT));
+  // Procp.get_C().resize(program.num_reg(CINT));
+  // Procp.get_E().resize(program.num_reg(CINT));
   Ci.resize(program.num_reg(INT));
   this->arg = arg;
   Procb.reset(program);
@@ -433,33 +431,37 @@ void Processor<sint, sgf2n>::write_shares_to_file(const vector<int>& data_regist
 
 template<class T>
 void SubProcessor<T>::print_registers(){
-#ifndef TZDEBUG
-  cout<<"can't print registers without TZDEBUG flag"<<endl;
-#endif
-  typedef Share<gfp_<0, 2>> uShare;   
-  typedef gfp_<0, 2> uClear;     
+// #ifndef TZDEBUG
+//   cout<<"can't print registers without TZDEBUG flag"<<endl;
+// #endif
+  // typedef Share<gfp_<0, 2>> uShare;   
+  // typedef gfp_<0, 2> uClear;     
 
   unsigned int size = get_S().size();
-  uShare* temp_ptr1;
-  uClear* temp_ptr2;
-  uClear* temp_ptr3;
+  // uShare* temp_ptr1;
+  // uClear* temp_ptr2;
+  // uClear* temp_ptr3;
 
-  cout<<"-==printing registers==-"<<endl;
+  cout<<"======================================="<<endl;
   for (unsigned int i = 0; i < size; i++)
   {
-    temp_ptr1 = dynamic_cast<uShare*>(&get_S_ref(i));
-    temp_ptr2 = dynamic_cast<uClear*>(&get_E_ref(i));
-    temp_ptr3 = dynamic_cast<uClear*>(&get_C_ref(i));
-    if((temp_ptr1==nullptr)||(temp_ptr2==nullptr)||(temp_ptr3==nullptr)){
-      DEBUG_PR("casting failed");
-      return;
-    }
-    cout<<"register "<<i<<endl;
-    cout<<"S: "<<temp_ptr1->get_share()<<endl;
-    cout<<"E: "<< *temp_ptr2<<endl;
-    cout<<"C: "<< *temp_ptr3<<endl;
+    // temp_ptr1 = dynamic_cast<uShare*>(&get_S_ref(i));
+    // temp_ptr2 = dynamic_cast<uClear*>(&get_E_ref(i));
+    // temp_ptr3 = dynamic_cast<uClear*>(&get_C_ref(i));
+    // if((temp_ptr1==nullptr)||(temp_ptr2==nullptr)||(temp_ptr3==nullptr)){
+    //   DEBUG_PR("casting failed");
+    //   return;
+    // }
+    // cout<<"register "<<i<<endl;
+    // cout<<"S: "<<temp_ptr1->get_share()<<endl;
+    // cout<<"E: "<< *temp_ptr2<<endl;
+    // cout<<"C: "<< *temp_ptr3<<endl;
+
+    cout<<"S: "<<get_S_ref(i)<<endl;
+    cout<<"E: "<<get_E_ref(i)<<endl;
+    cout<<"C: "<<get_C_ref(i)<<endl;
   }
-  cout<<"-==printing registers finished==-"<<endl;
+  cout<<"======================================="<<endl;
 }
 
 // Append share data in data_registers to end of file. Expects Persistence directory to exist.
@@ -470,7 +472,9 @@ void Processor<sint, sgf2n>::write_prep_data_to_file() {
   mkdir_p(dir.c_str());
 
   // assert_correct_prep_data<sint>(Procp.get_S(), Procp.get_E());
-  Procp.print_registers();
+#ifdef TZDEBUG
+    Procp.print_registers();
+#endif
 
   string sfilename = dir + "/PrepdataS-P" + to_string(P.my_num()) + ".data";
   string cfilename = dir + "/PrepdataC-P" + to_string(P.my_num()) + ".data";
@@ -514,6 +518,7 @@ void Processor<sint, sgf2n>::write_prep_data_to_file() {
 template <class T>
 void SubProcessor<T>::POpen(const vector<int>& reg,const Player& P,int size)
 {
+
   // (?) reg contain src->dst registers and size is size of a pair?
   assert(reg.size() % 2 == 0);
   // sz is number of src->dst pairs
@@ -558,21 +563,24 @@ void SubProcessor<T>::muls(const vector<int>& reg, int size)
     // @TZ open offest values
     protocol.exchange();
     for (int i = 0; i < n; i++)
-        for (int j = 0; j < size; j++)
-        {
-          // returns the offset values, the output wire share and triple
-          tuple<array<typename T::open_type,2>,T,array<T,3>> res = protocol.finalize_mul_prep();
-          array<typename T::open_type,2> ovals = get<0>(res);
-          T& out_share = get<1>(res);
-          array<T,3>& triple = get<2>(res);
-          // store shares of x,y values (not z)
-          proc.C[reg[3 * i + 1] + j] = ovals[0];
-          proc.C[reg[3 * i + 2] + j] = ovals[1];
-          proc.S[reg[3 * i] + j] = out_share;
-          proc.Ta[reg[3 * i] + j] = triple[0];
-          proc.Tb[reg[3 * i] + j] = triple[1];
-          proc.Tc[reg[3 * i] + j] = triple[2];
-        }
+      for (int j = 0; j < size; j++)
+      {
+        // returns the offset values, the output wire share and triple
+        tuple<array<typename T::open_type,2>,T,array<T,3>> res = protocol.finalize_mul_prep();
+        array<typename T::open_type,2> ovals = get<0>(res);
+        T& out_share = get<1>(res);
+        array<T,3>& triple = get<2>(res);
+        DEBUG_PR("storing offset vals "<<ovals[0]<<", "<<ovals[1]<< 
+        " in registers "<<reg[3 * i + 1] + j<<", "<<reg[3 * i + 2] + j);
+        
+        proc.C[reg[3 * i + 1] + j] = ovals[0];
+        proc.C[reg[3 * i + 2] + j] = ovals[1];
+        proc.S[reg[3 * i] + j] = out_share;
+        proc.Ta[reg[3 * i] + j] = triple[0];
+        proc.Tb[reg[3 * i] + j] = triple[1];
+        proc.Tc[reg[3 * i] + j] = triple[2];
+      }
+    
     
     protocol.counter += n * size;
     

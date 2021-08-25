@@ -21,9 +21,6 @@ class NoShare;
 class ShareInterface
 {
 public:
-#ifdef TZDEBUG
-    virtual ~ShareInterface(){};//@TZ virtual destrutor for casting, needed for a test
-#endif
     typedef GC::NoShare part_type;
     typedef GC::NoShare bit_type;
 

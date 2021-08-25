@@ -168,10 +168,14 @@ void Processor<sint, sgf2n>::reset(const Program& program,int arg)
   Procp.get_Ta().resize(program.num_reg(SINT));
   Procp.get_Tb().resize(program.num_reg(SINT));
   Procp.get_Tc().resize(program.num_reg(SINT));
-  Procp.get_C().resize(program.num_reg(CINT));
-  Procp.get_E().resize(program.num_reg(CINT));
-  Procp.get_Offv().resize(program.num_reg(CINT));
-  Procp.get_Rand().resize(program.num_reg(CINT));
+  Procp.get_C().resize(program.num_reg(SINT)); // @TZ make number of register the same
+  Procp.get_E().resize(program.num_reg(SINT));
+  Procp.get_Offv().resize(program.num_reg(SINT));
+  Procp.get_Rand().resize(program.num_reg(SINT));
+  // Procp.get_C().resize(program.num_reg(CINT));
+  // Procp.get_E().resize(program.num_reg(CINT));
+  // Procp.get_Offv().resize(program.num_reg(CINT));
+  // Procp.get_Rand().resize(program.num_reg(CINT));
   Ci.resize(program.num_reg(INT));
   this->arg = arg;
   Procb.reset(program);
@@ -392,81 +396,140 @@ void Processor<sint, sgf2n>::read_shares_from_file(int start_file_posn, int end_
   }
 }
 
-// works analogously to loading of vaues in input
-template<class T, class U = gfp_<0, 2>>
-bool assert_correct_prep_data(CheckVector<T>& mp, CheckVector<T>& op,
-        CheckVector<typename T::clear>& mr, CheckVector<typename T::clear>& orr){
-  bool res = true;
-  typedef Share<U> uShare;   
-  typedef typename Share<U>::clear uClear;     
-  U ZERO(0);
-
-  CheckVector<uShare> myPerm;
-  CheckVector<uShare> otherPerm;
-  CheckVector<uClear> myRand;
-  CheckVector<uClear> otherRand;
-  uShare* temp_ptr1;
-  uShare* temp_ptr2;
-  uClear* temp_ptr3;
-  uClear* temp_ptr4;
-
-  for(long unsigned int i = 0; i< mr.size(); ++i){
-    temp_ptr1 = dynamic_cast<uShare*>(&mp.at(i));
-    temp_ptr2 = dynamic_cast<uShare*>(&op.at(i));
-    temp_ptr3 = dynamic_cast<uClear*>(&mr.at(i));
-    temp_ptr4 = dynamic_cast<uClear*>(&orr.at(i));
-    if((temp_ptr1==nullptr)||(temp_ptr2==nullptr)||
-        (temp_ptr3==nullptr)||(temp_ptr4==nullptr)){
-      DEBUG_PR("casting failed");
-      return false;
-    }
-
-    myPerm.push_back(*temp_ptr1);
-    otherPerm.push_back(*temp_ptr2);
-    myRand.push_back(*temp_ptr3);
-    otherRand.push_back(*temp_ptr4);
-  }
-
-  DEBUG_PR("cast success, displaying registers");
-  for(long unsigned int i = 0; i< mr.size(); ++i){
-    uClear r1 = myRand.at(i);
-    uClear r2 = otherRand.at(i);
-    uClear s1 = myPerm.at(i).get_share();
-    uClear s2 = otherPerm.at(i).get_share();
-    DEBUG_PR("register "<<i<<" contains:");
-    DEBUG_PR("s1, s2: "<<s1<<", "<<s2);
-    DEBUG_PR("r1, r2: "<<r1<<", "<<r2);
-  }
-
-  DEBUG_PR("Checking that shares add up");
-  for(long unsigned int i = 0; i< mr.size(); ++i){
-    uClear r1 = myRand.at(i);
-    uClear r2 = otherRand.at(i);
-    uClear s1 = myPerm.at(i).get_share();
-    uClear s2 = otherPerm.at(i).get_share();
-    int k;
-    uClear r;
-    // auto r = mr.at(i);
-    if(r1 != ZERO || r2 != ZERO){
-      if(r2 == ZERO){
-        k = 1;
-        r = r1;
-      }else{
-        k = 2;
-        r = r2;
-      }
-      DEBUG_PR("Checking for r"<<k<<"="<<r);
-      DEBUG_PR("s1, s2: "<<s1<<", "<<s2);
-      if(s1 + s2 != r){
-        DEBUG_PR("check failed, s1+s2= "<<s1 + s2);
-        res = false;
-      }else{
-        DEBUG_PR("check success, s1+s2= "<<s1 + s2);
-      }
-    }
-  }
-  return res;
+  // CheckVector<typename T::clear> C;
+  // CheckVector<typename T::clear> E; // @TZ external values
+  // CheckVector<typename T::clear> Rand; // @TZ random vals from prep
+  // CheckVector<typename T::clear> Offv; // @TZ open permutation elements for mul gates
+  // CheckVector<T> S;
+  // CheckVector<T> Perm; // @TZ permutation elements
+template<class T>
+void SubProcessor<T>::print_single_register(int regi){
+  int i = regi;
+  cout<<"register "<<i<<endl;
+  cout<<"S: "<<get_S_ref(i)<<endl;
+  cout<<"Perm: "<<get_Perm_ref(i)<<endl;
+  cout<<"E: "<< get_E_ref(i)<<endl;
+  cout<<"Rand: "<< get_Rand_ref(i)<<endl;
+  cout<<"Offv: "<< get_Offv_ref(i)<<endl;
+  cout<<"C: "<< get_C_ref(i)<<endl;
 }
+
+
+template<class T>
+void SubProcessor<T>::print_registers(){
+// #ifndef TZDEBUG
+//   cout<<"can't print registers without TZDEBUG flag"<<endl;
+// #endif
+//   typedef Share<gfp_<0, 2>> uShare;   
+//   typedef gfp_<0, 2> uClear;     
+
+  unsigned int size = get_S().size();
+  // uShare* temp_ptr1;
+  // uShare* temp_ptr2;
+  // uClear* temp_ptr3;
+  // uClear* temp_ptr4;
+  // uClear* temp_ptr5;
+  // uClear* temp_ptr6;
+
+  cout<<"====================================="<<endl;
+  for (unsigned int i = 0; i < size; i++)
+  {
+    // temp_ptr1 = dynamic_cast<uShare*>(&get_S_ref(i));
+    // temp_ptr2 = dynamic_cast<uShare*>(&get_Perm_ref(i));
+    // temp_ptr3 = dynamic_cast<uClear*>(&get_E_ref(i));
+    // temp_ptr4 = dynamic_cast<uClear*>(&get_Rand_ref(i));
+    // temp_ptr5 = dynamic_cast<uClear*>(&get_Offv_ref(i));
+    // temp_ptr6 = dynamic_cast<uClear*>(&get_C_ref(i));
+    // if((temp_ptr1==nullptr)||(temp_ptr2==nullptr)||(temp_ptr3==nullptr)||
+    //    (temp_ptr4==nullptr)||(temp_ptr5==nullptr)||(temp_ptr6==nullptr)){
+    //   DEBUG_PR("casting failed");
+    //   return;
+    // }
+    // cout<<"register "<<i<<endl;
+    // cout<<"S: "<<temp_ptr1->get_share()<<endl;
+    // cout<<"Perm: "<<temp_ptr2->get_share()<<endl;
+    // cout<<"E: "<< *temp_ptr3<<endl;
+    // cout<<"Rand: "<< *temp_ptr4<<endl;
+    // cout<<"Offv: "<< *temp_ptr5<<endl;
+    // cout<<"C: "<< *temp_ptr6<<endl;
+    cout<<"register "<<i<<endl;
+    cout<<"S: "<<get_S_ref(i)<<endl;
+    cout<<"Perm: "<<get_Perm_ref(i)<<endl;
+    cout<<"E: "<< get_E_ref(i)<<endl;
+    cout<<"Rand: "<< get_Rand_ref(i)<<endl;
+    cout<<"Offv: "<< get_Offv_ref(i)<<endl;
+    cout<<"C: "<< get_C_ref(i)<<endl;
+  }
+  cout<<"====================================="<<endl;
+  // throw runtime_error("print registers deprecated");
+}
+
+// // works analogously to loading of vaues in input
+// template<class T, class U = gfp_<0, 2>>
+// bool assert_correct_prep_data(SubProcessor<T> Procp, CheckVector<T>& mp, CheckVector<T>& op,
+//         CheckVector<typename T::clear>& mr, CheckVector<typename T::clear>& orr){
+//           DEBUG_PR("assert_correct_prep_data disabled for now");
+  // bool res = true;
+  // typedef Share<U> uShare;   
+  // typedef typename Share<U>::clear uClear;     
+  // U ZERO(0);
+
+  // CheckVector<uShare> myPerm;
+  // CheckVector<uShare> otherPerm;
+  // CheckVector<uClear> myRand;
+  // CheckVector<uClear> otherRand;
+  // uShare* temp_ptr1;
+  // uShare* temp_ptr2;
+  // uClear* temp_ptr3;
+  // uClear* temp_ptr4;
+
+  // for(long unsigned int i = 0; i< mr.size(); ++i){
+  //   temp_ptr1 = dynamic_cast<uShare*>(&mp.at(i));
+  //   temp_ptr2 = dynamic_cast<uShare*>(&op.at(i));
+  //   temp_ptr3 = dynamic_cast<uClear*>(&mr.at(i));
+  //   temp_ptr4 = dynamic_cast<uClear*>(&orr.at(i));
+  //   if((temp_ptr1==nullptr)||(temp_ptr2==nullptr)||
+  //       (temp_ptr3==nullptr)||(temp_ptr4==nullptr)){
+  //     DEBUG_PR("casting failed");
+  //     return false;
+  //   }
+
+  //   myPerm.push_back(*temp_ptr1);
+  //   otherPerm.push_back(*temp_ptr2);
+  //   myRand.push_back(*temp_ptr3);
+  //   otherRand.push_back(*temp_ptr4);
+  // }
+
+  // // DEBUG_PR("cast success, displaying registers");
+
+  // Procp.print_registers();
+
+
+  // DEBUG_PR("Checking that shares add up");
+  // for(long unsigned int i = 0; i< mr.size(); ++i){
+  //   uClear r1 = myRand.at(i);
+  //   uClear r2 = otherRand.at(i);
+  //   uClear s1 = myPerm.at(i).get_share();
+  //   uClear s2 = otherPerm.at(i).get_share();
+  //   int k;
+  //   uClear r;
+  //   if(r1 != ZERO || r2 != ZERO){
+  //     if(r2 == ZERO){
+  //       k = 1;
+  //       r = r1;
+  //     }else{
+  //       k = 2;
+  //       r = r2;
+  //     }
+  //     if(s1 + s2 != r){
+  //       DEBUG_PR("check failed for register "<<i<<", r"<<k<<"= "<<r);
+  //       DEBUG_PR("check failed, s1+s2= "<<s1 + s2);
+  //       res = false;
+  //     }
+  //   }
+  // }
+  // return res;
+// }
 
 template<class sint, class sgf2n>
 void Processor<sint, sgf2n>::read_prep_data_from_file() {
@@ -530,18 +593,20 @@ void Processor<sint, sgf2n>::read_prep_data_from_file() {
       otherRand[i] = eoutbuf2[i];
     }
     //@TZ ??? don't know if needed, ignoring for now
-    // write_Ci(end_file_pos_register, (long)end_file_posn);    
+    // write_Ci(Ci[0], (long)eof);    
   }
   catch (file_missing& e) {
     cerr << "Got file missing error, will return -2. " << e.what() << endl;
     //@TZ ??? don't know if needed, ignoring for now
-    // write_Ci(end_file_pos_register, (long)-2);
+    // write_Ci(Ci[0], (long)-2);
   }
 
-  bool testRes = assert_correct_prep_data<sint>(Procp.get_Perm(), otherPerm, Procp.get_Rand(), otherRand);
-  if(!testRes)
-    throw runtime_error("Loading prep data failed");
-  DEBUG_PR("Prep data test success!");
+  // #ifdef TZDEBUG
+  // bool testRes = assert_correct_prep_data<sint>(Procp, Procp.get_Perm(), otherPerm, Procp.get_Rand(), otherRand);
+  // if(!testRes)
+  //   throw runtime_error("Loading prep data failed");
+  // DEBUG_PR("Prep data test success!");
+  // #endif
 }
 
 // Append share data in data_registers to end of file. Expects Persistence directory to exist.
@@ -623,7 +688,7 @@ void SubProcessor<T>::muls(const vector<int>& reg, int size)
             T vz = T::constant(ehx * ehy, P.my_num(), MC.get_alphai()) - ehy*a - ehx*b + c;
             proc.S[reg[3 * i] + j] = vz;
             // send shares of permutation value and wire value to protocol for opening and getting ext val
-            T& pz = proc.S[reg[3 * i] + j];
+            T& pz = proc.Perm[reg[3 * i] + j];
             protocol.prepare_mul(vz, pz);
         }
     // @TZ open vz+pz

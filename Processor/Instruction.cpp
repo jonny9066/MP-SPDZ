@@ -17,6 +17,10 @@ void Instruction::execute_clear_gf2n(vector<cgf2n>& registers,
     (void)Proc;//@TZ not used
     auto& C2 = registers;
     auto& M2C = memory;
+#if defined(TURBOPREP) || defined(TURBOSPEEDZ) // hide warning
+    (void)C2;
+    (void)M2C;
+#endif
     switch (opcode)
     {
 #define X(NAME, PRE, CODE) \
@@ -57,7 +61,9 @@ void Instruction::gbitcom(vector<cgf2n>& registers) const
 void Instruction::execute_regint(ArithmeticProcessor& Proc, vector<Integer>& Mi) const
 {
     (void) Mi;
-    // auto& Ci = Proc.get_Ci(); //@TZ not used
+#if !defined(TURBOSPEEDZ) && !defined(TURBOPREP)//@TZ not used
+    auto& Ci = Proc.get_Ci(); 
+#endif
     switch (opcode)
     {
 #define X(NAME, PRE, CODE) \

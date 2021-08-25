@@ -74,7 +74,6 @@ public:
       int b);
   void conv2ds(const Instruction& instruction);
 
-  void print_registers();//@TZ for debug
 
   CheckVector<T>& get_S()
   {
@@ -129,6 +128,8 @@ public:
   {
     return E[i];
   }
+
+  void print_registers();//@TZ for debug
 
 };
 

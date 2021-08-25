@@ -72,7 +72,8 @@ void BaseInstruction::parse_operands(istream& s, int pos, int file_pos)
   switch (opcode)
   {
       // instructions with 3 register operands
-      case ADDS:
+      case ADDS:      
+      case SUBS:
         r[0]=get_int(s);
         r[1]=get_int(s);
         r[2]=get_int(s);
@@ -96,6 +97,11 @@ void BaseInstruction::parse_operands(istream& s, int pos, int file_pos)
         break;
 
       // instructions with 2 registers + 1 integer operand
+      case SUBSFI:
+        r[0]=get_int(s);
+        r[1]=get_int(s);
+        n = get_int(s);
+        break;
       // TODO see if anything is needed to do
       case USE:
       case USE_INP:
@@ -109,6 +115,8 @@ void BaseInstruction::parse_operands(istream& s, int pos, int file_pos)
       case LDMS:
       case GLDMC:
       case GLDMS:
+      case LDINT:
+      case LDSI:
         r[0]=get_int(s);
         n = get_int(s);
         break;
@@ -625,13 +633,15 @@ inline void Instruction::execute(Processor<sint, sgf2n>& Proc) const
         sint::shrsi(Procp, *this);
         return;
       case OPEN:
+      // nothing to be done for opening in tzprep
+#ifndef TURBOPREP 
          Proc.Procp.POpen(start, Proc.P, size);
+#endif
         return;
       case GOPEN:
         Proc.Proc2.POpen(start, Proc.P, size);
         return;
       case MULS:
-      // Procp is for modp
         Proc.Procp.muls(start, size);
         return;
       case GMULS:
@@ -884,6 +894,9 @@ template<class sint, class sgf2n>
 void Program::execute(Processor<sint, sgf2n>& Proc) const
 {
   DEBUG_INSTR("begin program execution");
+#ifdef TZDEBUG
+    Proc.Procp.print_registers();
+#endif
   unsigned int size = p.size();
   Proc.PC=0;
 
@@ -909,7 +922,7 @@ void Program::execute(Processor<sint, sgf2n>& Proc) const
 #endif
 
       Proc.PC++;
-      DEBUG_INSTR("executing instruction" << showbase << hex << instruction.get_opcode()  << dec );
+      // DEBUG_INSTR("executing instruction " << showbase << hex << instruction.get_opcode()  << dec );
       switch(instruction.get_opcode())
         {
 #define X(NAME, PRE, CODE) \
@@ -943,7 +956,6 @@ void Program::execute(Processor<sint, sgf2n>& Proc) const
         default:
           instruction.execute(Proc);
         }
-        Procp.print_registers();
     }
   DEBUG_INSTR("end program execution");
 }

@@ -99,11 +99,13 @@ void Input<T>::add_mine(const open_type& input, int n_bits)
     rand.push_back({}); // @TZ can I do that?
     T& share = shares[player].back();
     open_type& ra = rand.back();
-    DEBUG_IN("Creating random val and sharing it");
+    DEBUG_IN("adding input: "<<input);
     prep.get_input(share, ra, player);
-    uShare* temp_ptr1 = dynamic_cast<uShare*>(&share);
-    DEBUG_IN("Random val is: "<<ra);
-    DEBUG_IN("My share is: "<<temp_ptr1->get_share());
+    DEBUG_IN("random val, share: "<<ra<<", "<<share);
+
+    // uShare* temp_ptr1 = dynamic_cast<uShare*>(&share);
+    // DEBUG_IN("generating random val: "<<ra);
+    // DEBUG_IN("my share of random val val: "<<temp_ptr1->get_share());
 
     this->values_input++;
 }
@@ -189,19 +191,21 @@ template<class U>
 void InputBase<T>::finalize(SubProcessor<T>& Proc, int player, const int* dest,
         int size)
 {
-    DEBUG_IN("saving input into registers (finalize)");
     auto& input = Proc.input;
     for (int k = 0; k < size; k++)
         for (int j = 0; j < U::N_DEST; j++){
             // put shares of the input in their place
             tuple<T, typename T::open_type, bool> so = input.finalize_tzprep(player);
-            if (get<2>(so) == true) // if my share save the open random element
+            if (get<2>(so) == true){ // if my share save the open random element
                 Proc.get_E_ref(dest[j] + k) =  get<1>(so);
+                DEBUG_IN("E("<<dest[j] + k<<") <-"<<get<1>(so));
+            }
             Proc.get_S_ref(dest[j] + k) =  get<0>(so);// save share
+            DEBUG_IN("S("<<dest[j] + k<<") <-"<<get<0>(so));
 
-            T& svshr = get<0>(so);
-            uShare* temp_ptr1 = dynamic_cast<uShare*>(&svshr);
-            DEBUG_IN("saving to S register: "<<temp_ptr1->get_share());
+            // T& svshr = get<0>(so);
+            // uShare* temp_ptr1 = dynamic_cast<uShare*>(&svshr);
+            // DEBUG_IN("saving to S register: "<<temp_ptr1->get_share());
         }            
 }
 
@@ -225,6 +229,7 @@ void InputBase<T>::input_mixed(SubProcessor<T>& Proc, const vector<int>& args,
     int size, bool player_from_reg)
 {
     DEBUG_IN("getting input (input_mixed)");
+    // Proc.print_registers();
     auto& input = Proc.input;
     input.reset_all(Proc.P);
     int last_type = -1;
@@ -278,7 +283,9 @@ void InputBase<T>::input_mixed(SubProcessor<T>& Proc, const vector<int>& args,
         }
         i += n_arg_tuple;
     }
+#ifdef TZDEBUG
     Proc.print_registers();
+#endif
     DEBUG_IN("finished getting input (input_mixed)");
 }
 

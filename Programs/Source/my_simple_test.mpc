@@ -16,8 +16,10 @@ print_ln('got input: %s, %s',ar,br)
 
 c=a+b
 d=c*b
+cr = c.reveal()
 dr = d.reveal()
-print_ln('result is %s',dr)
+print_ln('c is %s',cr)
+print_ln('d is %s',dr)
 
 
 

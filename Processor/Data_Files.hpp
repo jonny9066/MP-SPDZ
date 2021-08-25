@@ -133,7 +133,7 @@ Data_Files<sint, sgf2n>::~Data_Files()
     cerr << "Sent for " << sint::type_string() << " preprocessing threads: " <<
         DataFp.data_sent() * 1e-6 << " MB" << endl;
 #endif
-  DEBUG_DTF("Deleting &DataFp");
+  // DEBUG_DTF("Deleting &DataFp");
   delete &DataFp;
 #ifdef VERBOSE
   if (DataF2.data_sent())

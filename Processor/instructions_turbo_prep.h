@@ -9,6 +9,14 @@
     X(ADDS, auto dest = &Procp.get_S()[r[0]]; auto op1 = &Procp.get_S()[r[1]]; \
             auto op2 = &Procp.get_S()[r[2]], \
             *dest++ = *op1++ + *op2++) \
+    X(SUBS, auto dest = &Procp.get_S()[r[0]]; auto op1 = &Procp.get_S()[r[1]]; \
+        auto op2 = &Procp.get_S()[r[2]], \
+        *dest++ = *op1++ - *op2++) \
+    X(LDSI, auto dest = &Procp.get_S()[r[0]]; \
+        auto tmp = sint::constant(int(n), Proc.P.my_num(), Procp.MC.get_alphai()), \
+        *dest++ = tmp) \
+
+
 
 // LDMS, GLDMS clean registers, we don't want that here            
 #define ARITHMETIC_INSTRUCTIONS_DISABLED \
@@ -16,10 +24,15 @@
             *dest++ = *source++) \
     X(GLDMS, auto dest = &Proc2.get_S()[r[0]]; auto source = &Proc.machine.M2.MS[n], \
             *dest++ = *source++) \
+    X(SUBSFI, auto dest = &Procp.get_S()[r[0]]; auto op1 = &Procp.get_S()[r[1]]; \
+            auto op2 = sint::constant(int(n), Proc.P.my_num(), Procp.MC.get_alphai()), \
+            *dest++ = op2 - *op1++) \
 
 #define REGINT_INSTRUCTIONS \
     X(LDMINT, auto dest = &Proc.get_Ci()[r[0]]; auto source = &Mi[n], \
             *dest++ = (*source).get(); source++) \
+    X(LDINT, auto dest = &Proc.get_Ci()[r[0]], \
+            *dest++ = int(n)) \
 
 #define REGINT_INSTRUCTIONS_DISABLED \
     X(PRINTSTR, Proc.out << string((char*)&n,sizeof(n)) << flush,) \

@@ -281,7 +281,7 @@ DataPositions Machine<sint, sgf2n>::join_tape(int i)
 template<class sint, class sgf2n>
 void Machine<sint, sgf2n>::run()
 {
-  DEBUG_MACHINE("start run");
+  // DEBUG_MACHINE("start run");
   Timer proc_timer(CLOCK_PROCESS_CPUTIME_ID);
   proc_timer.start();
   timer[0].start();

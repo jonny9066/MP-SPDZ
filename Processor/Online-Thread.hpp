@@ -243,10 +243,10 @@ void thread_info<sint, sgf2n>::Sub_Main_Func()
           // reset for actual usage
           Proc.DataF.reset_usage();
 
-          DEBUG_ONTH("before program run");
-#ifdef TZDEBUG
-          Proc.Procp.print_registers();
-#endif             
+//           DEBUG_ONTH("before program run");
+// #ifdef TZDEBUG
+//           Proc.Procp.print_registers();
+// #endif             
           //printf("\tExecuting program");
           // Execute the program
           progs[program].execute(Proc);

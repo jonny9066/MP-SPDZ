@@ -149,14 +149,14 @@ public:
     return Rand[i];
   }
 
-  // typename T::clear& get_E_ref(int i)
-  // {
-  //   return E[i];
-  // }
-  // typename T::clear& get_Offv_ref(int i) 
-  // {
-  //   return Offv[i];
-  // }
+  typename T::clear& get_Offv_ref(int i) 
+  {
+    return Offv[i];
+  }
+
+  void print_registers();//@TZ for debug
+  void print_single_register(int i);//@TZ for debug
+
 };
 
 class ArithmeticProcessor : public ProcessorBase
@@ -319,6 +319,7 @@ class Processor : public ArithmeticProcessor
   
   cint get_inverse2(unsigned m);
 
+  
   // Print the processor state
   template<class T, class U>
   friend ostream& operator<<(ostream& s,const Processor<T, U>& P);
