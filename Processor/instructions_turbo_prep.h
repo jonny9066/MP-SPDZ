@@ -16,6 +16,10 @@
         auto tmp = sint::constant(int(n), Proc.P.my_num(), Procp.MC.get_alphai()), \
         *dest++ = tmp) \
 
+    // X(SUBSFI, auto dest = &Procp.get_S()[r[0]]; auto op1 = &Procp.get_S()[r[1]]; \
+    //         auto op2 = sint::constant(int(n), Proc.P.my_num(), Procp.MC.get_alphai()), \
+    //         *dest++ = op2 - *op1++) \
+
 
 
 // LDMS, GLDMS clean registers, we don't want that here            
@@ -24,9 +28,6 @@
             *dest++ = *source++) \
     X(GLDMS, auto dest = &Proc2.get_S()[r[0]]; auto source = &Proc.machine.M2.MS[n], \
             *dest++ = *source++) \
-    X(SUBSFI, auto dest = &Procp.get_S()[r[0]]; auto op1 = &Procp.get_S()[r[1]]; \
-            auto op2 = sint::constant(int(n), Proc.P.my_num(), Procp.MC.get_alphai()), \
-            *dest++ = op2 - *op1++) \
 
 #define REGINT_INSTRUCTIONS \
     X(LDMINT, auto dest = &Proc.get_Ci()[r[0]]; auto source = &Mi[n], \

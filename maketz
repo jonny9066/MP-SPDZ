@@ -13,10 +13,36 @@ compile:
 # compile:
 # 	./compile.py -u $(PROG)
 
-input:
-	echo 1 0 1 1 0 0 0 0 1 0 0 0 0 0 1 0 1 1 1 0 1 1 0 1 0 1 1 0 0 1 0 1 0 0 0 1 1 1 1 1 0 0 1 0 1 1 0 0 1 0 0 0 1 0 0 1 1 1 0 1 1 0 0 0 1 0 0 0 1 0 1 0 0 0 1 1 1 1 1 0 1 0 1 0 1 0 0 1 1 0 0 0 1 0 0 1 1 1 1 1 0 0 1 0 1 1 0 1 1 1 0 1 0 1 1 1 0 0 1 1 0 0 0 1 1 0 0 0 > Player-Data/Input-P0-0
-	echo 1 0 1 0 1 0 0 1 1 1 1 0 1 0 0 0 1 0 0 1 0 1 0 0 0 1 0 0 0 1 0 1 0 1 0 0 0 1 0 0 1 1 1 1 1 0 0 0 0 1 0 0 0 1 0 1 0 1 0 0 1 1 1 0 0 1 1 0 1 0 1 0 1 1 0 1 0 1 0 1 1 0 1 0 0 0 0 0 1 0 1 0 0 1 0 1 1 1 1 1 1 1 1 0 0 0 1 0 0 0 1 1 0 1 1 1 1 1 0 0 0 1 1 1 0 1 1 0 > Player-Data/Input-P1-0
+benchmark0:
+	$(PREPEX) -N 2 0 $(PROG)
+	for VARIABLE in 1 2 3 4 5 6 7 8 9 10;\
+	do\
+		$(ONLINEEX) -N 2 0 $(PROG) >> benchturbo.txt ;\
+	done
+	rm ./Persistence/*
+	for VARIABLE in 1 2 3 4 5 6 7 8 9 10;\
+	do\
+		$(SPDZEX) -N 2 0 $(PROG);\
+	done
 
+benchmark1:
+	$(PREPEX) -N 2 1 $(PROG)
+	echo TURBOSPEEDZ BENCH
+	for VARIABLE in 1 2 3 4 5 6 7 8 9 10;\
+	do\
+		$(ONLINEEX) -N 2 1 $(PROG);\
+	done
+	echo SDPZ BENCH
+	for VARIABLE in 1 2 3 4 5 6 7 8 9 10;\
+	do\
+		$(SPDZEX) -N 2 1 $(PROG);\
+	done
+
+# first input is auxillary, p0 = 129 inputs, p1 = 128 inputs
+input:
+	echo 1 1 0 1 0 1 1 0 1 1 1 1 1 1 0 0 0 0 1 0 1 0 1 0 0 0 1 0 1 1 0 0 0 1 0 1 0 0 0 1 0 1 0 1 1 1 0 1 1 0 1 0 0 1 0 1 0 1 0 0 1 1 0 1 0 1 0 1 0 1 1 1 1 1 1 0 1 1 1 0 0 0 1 0 1 0 1 1 0 0 0 1 0 0 0 0 0 0 0 1 0 0 1 1 1 0 0 1 1 1 1 0 1 0 0 1 1 1 1 0 0 1 1 1 1 0 0 0 0 > Player-Data/Input-P0-0
+	echo 1 1 0 1 0 1 1 1 1 0 0 0 0 0 1 1 0 1 1 1 1 1 0 1 1 1 0 0 0 1 0 0 0 1 0 1 1 1 0 0 1 0 0 0 0 0 0 1 0 0 1 1 1 1 1 1 0 0 1 0 1 1 0 1 1 1 0 1 0 0 1 0 0 1 1 1 1 0 1 0 1 1 1 1 1 1 0 0 0 0 1 0 0 0 1 0 1 1 1 0 0 1 1 1 0 0 1 0 0 1 1 0 0 0 1 0 1 1 1 0 0 1 0 1 0 1 0 0 > Player-Data/Input-P1-0
+	
 test_input:
 	echo 1 0 > Player-Data/Input-P0-0
 	echo 1 0 > Player-Data/Input-P1-0

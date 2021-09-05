@@ -101,6 +101,7 @@ class Circuit:
 
         for i in range(n_gates):
             line = next_line()
+            print(line)
             t = line[-1]
             if t in ('XOR', 'AND'):
                 assert line[0] == '2'
@@ -116,6 +117,10 @@ class Circuit:
                 assert line[1] == '1'
                 assert len(line) == 5
                 wires[int(line[3])] = ~wires[int(line[2])]
+        # print(self.wires[-sum(self.n_output_wires):])
+        # print('output wires:')
+        # print(self.wires[sum(self.n_output_wires):])
+        print(self.n_output_wires)
 
         return self.wires[-sum(self.n_output_wires):]
 

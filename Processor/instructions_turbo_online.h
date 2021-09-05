@@ -22,10 +22,11 @@
     X(LDSI, auto dest = &Procp.get_S()[r[0]]; \
             auto tmp = sint::constant(int(n), Proc.P.my_num(), Procp.MC.get_alphai()), \
             *dest++ = tmp) \
-    X(SUBSFI, auto dest = &Procp.get_S()[r[0]]; auto op1 = &Procp.get_S()[r[1]]; \
-        auto op2 = sint::constant(int(n), Proc.P.my_num(), Procp.MC.get_alphai()); \
-        auto edest = &Procp.get_E()[r[0]]; auto eop1 = &Procp.get_E()[r[1]]; \
-        auto eop2 = typename sint::clear(int(n)),  *dest++ = op2 - *op1; *edest++ = eop2 + *eop1++ - 2*(*op1++).get_share()) \
+
+//     X(SUBSFI, auto dest = &Procp.get_S()[r[0]]; auto op1 = &Procp.get_S()[r[1]]; \
+//         auto op2 = sint::constant(int(n), Proc.P.my_num(), Procp.MC.get_alphai()); \
+//         auto edest = &Procp.get_E()[r[0]]; auto eop1 = &Procp.get_E()[r[1]]; \
+//         auto eop2 = typename sint::clear(int(n)),  *dest++ = op2 - *op1; *edest++ = eop2 + *eop1++ - 2*(*op1++).get_share()) \
             
 #define ARITHMETIC_INSTRUCTIONS_DISABLED
 

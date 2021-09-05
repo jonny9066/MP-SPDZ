@@ -1,34 +1,22 @@
 
 
-
-
-
+# auxillary input for workaround of inverse   
+inv_aux = sint.get_input_from(0)
 
 
 def ugly_xor(x1, x2):
     t1 = x1 - x2
     t2 = x1 - x2
     res = t1*t2
-    print_ln('xor %s', res.reveal())
+    # print_ln('xor %s', res.reveal())
     return res
 
 
-# def ugly_xor(x1, x2):
-#     t1 = sint(0)
-#     t2 = sint(0)
-#     t1 = t1 + x1 - x2
-#     t2 = t2 + x1 - x2
-#     res = t1*t2
-#     # print_ln('xor %s', res.reveal())
-#     return res
-#     # return x1
 
 def my_inv(x):
-    res = sint(1)
-    res = 1 - x
-    print_ln('inv %s', res.reveal())
+    res = inv_aux - x
+    # print_ln('inv %s', res.reveal())
     return res
-    # return x
 
 
 def my_and(x1, x2):
@@ -37,9 +25,9 @@ def my_and(x1, x2):
     t1 = t1+x1
     t2 = t2+x2
     res = t1*t2
-    print_ln('and %s', res.reveal())
+    # print_ln('and %s', res.reveal())
     return res
-    
+
 
 w0 = sint.get_input_from(0)
 w1 = sint.get_input_from(0)
@@ -425,16 +413,13 @@ w33378 = ugly_xor(w252, w124)
 w33379 = ugly_xor(w253, w125)
 w33380 = ugly_xor(w254, w126)
 w33381 = ugly_xor(w255, w127)
-print_ln('last xor with input wires: %s', w33381.reveal())
 w3456 = ugly_xor(w33271, w33273)
-print_ln('one after previous: %s', w3456.reveal())
 w3457 = ugly_xor(w33275, w33277)
 w3458 = ugly_xor(w33272, w3456)
 w3539 = ugly_xor(w33276, w3458)
 w3536 = ugly_xor(w33275, w3458)
 w3459 = ugly_xor(w33274, w33276)
 w3463 = ugly_xor(w33270, w33276)
-print_ln('six after previous: %s', w3463.reveal())
 w3538 = ugly_xor(w3463, w3458)
 w3550 = ugly_xor(w33274, w33277)
 w3545 = ugly_xor(w3457, w3463)
@@ -11616,7 +11601,6 @@ w5419 = ugly_xor(w5333, w5427)
 w5412 = my_and(w5419, w5423)
 w5418 = ugly_xor(w33486, w5419)
 w23454 = ugly_xor(w33502, w33508)
-print_ln('around third, w23454: %s', w23454.reveal())
 w33225 = my_inv(w32360)
 w4977 = ugly_xor(w32756, w33225)
 w5220 = ugly_xor(w4977, w5043)
@@ -22438,7 +22422,6 @@ w30625 = my_and(w30635, w30667)
 w30624 = my_and(w30632, w30665)
 w30603 = ugly_xor(w30624, w30613)
 w30579 = ugly_xor(w30624, w30627)
-print_ln('around two thirds: %s', w30579.reveal())
 w30576 = my_inv(w30579)
 w30575 = ugly_xor(w30624, w30625)
 w30563 = ugly_xor(w30625, w30603)
@@ -36967,6 +36950,5 @@ w34543 = my_inv(w1878)
 w36864 = ugly_xor(w34543, w1078)
 
 
-print_ln("result: %s", w36864.reveal())
-
+print_ln('%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s',w1908.reveal(), w1912.reveal(), w1907.reveal(), w1903.reveal(), w1906.reveal(), w1902.reveal(), w34552.reveal(), w2016.reveal(), w34555.reveal(), w2018.reveal(), w34551.reveal(), w36840.reveal(), w36844.reveal(), w2019.reveal(), w34550.reveal(), w36839.reveal(), w36841.reveal(), w1863.reveal(), w1850.reveal(), w1808.reveal(), w1795.reveal(), w1756.reveal(), w1804.reveal(), w1798.reveal(), w1753.reveal(), w1841.reveal(), w1846.reveal(), w1757.reveal(), w1847.reveal(), w1844.reveal(), w1843.reveal(), w1745.reveal(), w1800.reveal(), w1840.reveal(), w1842.reveal(), w1812.reveal(), w1839.reveal(), w1752.reveal(), w1751.reveal(), w1746.reveal(), w1837.reveal(), w1836.reveal(), w1838.reveal(), w1824.reveal(), w1815.reveal(), w1807.reveal(), w1828.reveal(), w1826.reveal(), w1806.reveal(), w1789.reveal(), w1835.reveal(), w1825.reveal(), w1816.reveal(), w1817.reveal(), w1821.reveal(), w1834.reveal(), w1833.reveal(), w1750.reveal(), w1742.reveal(), w1793.reveal(), w1832.reveal(), w1813.reveal(), w1777.reveal(), w1749.reveal(), w1831.reveal(), w1818.reveal(), w1822.reveal(), w1759.reveal(), w1809.reveal(), w1748.reveal(), w1744.reveal(), w1747.reveal(), w1830.reveal(), w1811.reveal(), w1820.reveal(), w1769.reveal(), w1765.reveal(), w1743.reveal(), w1827.reveal(), w1819.reveal(), w1810.reveal(), w1805.reveal(), w1773.reveal(), w1776.reveal(), w1774.reveal(), w1771.reveal(), w1770.reveal(), w1786.reveal(), w1787.reveal(), w1792.reveal(), w1797.reveal(), w1760.reveal(), w34545.reveal(), w36866.reveal(), w1877.reveal(), w34548.reveal(), w36869.reveal(), w1829.reveal(), w1823.reveal(), w1791.reveal(), w1799.reveal(), w1764.reveal(), w1758.reveal(), w1761.reveal(), w1814.reveal(), w1790.reveal(), w1775.reveal(), w1879.reveal(), w34542.reveal(), w34549.reveal(), w36870.reveal(), w36863.reveal(), w34546.reveal(), w36867.reveal(), w1768.reveal(), w1767.reveal(), w1763.reveal(), w1766.reveal(), w1762.reveal(), w34544.reveal(), w36865.reveal(), w1876.reveal(), w34547.reveal(), w36868.reveal(), w1772.reveal(), w1878.reveal(), w34543.reveal(), w36864.reveal())
 

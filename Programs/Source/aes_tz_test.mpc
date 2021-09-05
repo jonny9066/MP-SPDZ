@@ -14,16 +14,9 @@ def ugly_xor(x1, x2):
     res = t1*t2
     return res
 
-# def ugly_xor(x1, x2):
-#     t1 = sint(0)
-#     t2 = sint(0)
-#     t1 = t1 + x1 - x2
-#     t2 = t2 + x1 - x2
-#     res = t1*t2
-#     return res
 
 def my_inv(x1):
-    return 1 - x1
+    return a1 - x1
 
 def my_and(x1, x2):
     t1 = sint(0)
@@ -34,41 +27,26 @@ def my_and(x1, x2):
 
 # got inputs, p1: 1, 0, p2: 1, 0
 
-# print_ln('0 XOR 0: %s', ugly_xor(a2, b2).reveal())
-# print_ln('1 XOR 0: %s', ugly_xor(a2, b1).reveal())
-# print_ln('0 XOR 1: %s', ugly_xor(a1, b2).reveal())
-# print_ln('1 XOR 1: %s', ugly_xor(a1, b1).reveal())
-# print_ln('0 AND 0: %s', my_and(a2, b2).reveal())
-# print_ln('1 AND 0: %s', my_and(a2, b1).reveal())
-# print_ln('0 AND 1: %s', my_and(a1, b2).reveal())
-# print_ln('1 AND 1: %s', my_and(a1, b1).reveal())
-# print_ln('INV 0: %s', my_inv(a2).reveal())
-# print_ln('INV 1: %s', my_inv(a1).reveal())
+print_ln('0 XOR 0: %s', ugly_xor(a2, b2).reveal())
+print_ln('1 XOR 0: %s', ugly_xor(a2, b1).reveal())
+print_ln('0 XOR 1: %s', ugly_xor(a1, b2).reveal())
+print_ln('1 XOR 1: %s', ugly_xor(a1, b1).reveal())
+print_ln('0 AND 0: %s', my_and(a2, b2).reveal())
+print_ln('1 AND 0: %s', my_and(a2, b1).reveal())
+print_ln('0 AND 1: %s', my_and(a1, b2).reveal())
+print_ln('1 AND 1: %s', my_and(a1, b1).reveal())
+print_ln('INV 0: %s', my_inv(a2).reveal())
+print_ln('INV 1: %s', my_inv(a1).reveal())
 
 r1 = ugly_xor(a1,b1)
 r2 = ugly_xor(a2, b1)
 r3 = ugly_xor(r1, r2)
-r4 = ugly_inv(r3)
+r4 = my_inv(r3)
 print_ln('r1: %s', r1.reveal())
 print_ln('r2: %s', r2.reveal())
 print_ln('r3: %s', r3.reveal())
+print_ln('r4: %s', r4.reveal())
 
 
 
-
-
-# print_ln('ugly_xor(a1, b1) = %s', res1.reveal())
-
-# # def test(actual, expected):
-# #     # you can reveal a number in order to print it
-
-# #     actual = actual.reveal()
-# #     print_ln('expected %s, got %s', expected, actual)
-
-# c=a+b
-# d=c*b
-# cr = c.reveal()
-# dr = d.reveal()
-# print_ln('c is %s',cr)
-# print_ln('d is %s',dr)
 
