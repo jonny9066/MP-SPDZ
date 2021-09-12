@@ -3,23 +3,38 @@
 
 
 a = sint.get_input_from(0)
-b = sint.get_input_from(1)
-ar, br = a.reveal(),b.reveal()
-print_ln('got input: %s, %s',ar,br)
+b = sint.get_input_from(0)
+c = sint.get_input_from(0)
+d = sint.get_input_from(0)
+e = sint.get_input_from(1)
+f = sint.get_input_from(1)
+g = sint.get_input_from(1)
+h = sint.get_input_from(1)
+
+print_ln('%s%s%s%s%s%s%s%s',a.reveal(),b.reveal(),c.reveal(),d.reveal(),e.reveal(),f.reveal(),g.reveal(),h.reveal())
 
 
-# # def test(actual, expected):
-# #     # you can reveal a number in order to print it
 
-# #     actual = actual.reveal()
-# #     print_ln('expected %s, got %s', expected, actual)
 
-c=a+b
-d=c*b
-cr = c.reveal()
-dr = d.reveal()
-print_ln('c is %s',cr)
-print_ln('d is %s',dr)
+
+# a = sint.get_input_from(0)
+# b = sint.get_input_from(1)
+# ar, br = a.reveal(),b.reveal()
+# print_ln('got input: %s, %s',ar,br)
+
+
+# # # def test(actual, expected):
+# # #     # you can reveal a number in order to print it
+
+# # #     actual = actual.reveal()
+# # #     print_ln('expected %s, got %s', expected, actual)
+
+# c=a+b
+# d=c*b
+# cr = c.reveal()
+# dr = d.reveal()
+# print_ln('c is %s',cr)
+# print_ln('d is %s',dr)
 
 
 

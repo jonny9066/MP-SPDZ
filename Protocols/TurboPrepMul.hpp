@@ -73,6 +73,7 @@ void Beaver<T>::stop_exchange()
 template<class T>
 T Beaver<T>::finalize_mul(int n)
 {
+    (void)n;
     throw runtime_error("finalize_mul deprecated in turboprep");
 }
 

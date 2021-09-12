@@ -25,9 +25,9 @@ class Program;
 template <class T>
 class SubProcessor
 {
-  CheckVector<typename T::clear> C;
+  CheckVector<typename T::clear> C; // @TZ offset values
   CheckVector<typename T::clear> E; // @TZ external values
-  CheckVector<T> S;
+  CheckVector<T> S; // @TZ permutation elements
   CheckVector<T> Ta;
   CheckVector<T> Tb;
   CheckVector<T> Tc;

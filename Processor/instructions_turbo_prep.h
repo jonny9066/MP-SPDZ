@@ -16,9 +16,7 @@
         auto tmp = sint::constant(int(n), Proc.P.my_num(), Procp.MC.get_alphai()), \
         *dest++ = tmp) \
 
-    // X(SUBSFI, auto dest = &Procp.get_S()[r[0]]; auto op1 = &Procp.get_S()[r[1]]; \
-    //         auto op2 = sint::constant(int(n), Proc.P.my_num(), Procp.MC.get_alphai()), \
-    //         *dest++ = op2 - *op1++) \
+
 
 
 
